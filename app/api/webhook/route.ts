@@ -170,10 +170,21 @@ export async function POST(request: NextRequest) {
     const body = await request.text();
     const signature = request.headers.get("x-line-signature") || "";
 
-    console.log("[Webhook] Received request. Body length:", body.length);
+    console.log("[Webhook] ===== DEBUG START =====");
+    console.log("[Webhook] Body length:", body.length);
+    console.log("[Webhook] Signature received:", signature);
+    console.log("[Webhook] Secret exists:", !!secret);
+    console.log("[Webhook] Secret length:", secret.length);
+    console.log("[Webhook] Secret first 8 chars:", secret.substring(0, 8));
+    
+    // 手動計算簽名來偵錯
+    const expectedHash = crypto.createHmac("sha256", secret).update(body).digest("base64");
+    console.log("[Webhook] Expected signature:", expectedHash);
+    console.log("[Webhook] Signatures match:", expectedHash === signature);
+    console.log("[Webhook] ===== DEBUG END =====");
 
     if (!verifySignature(body, signature, secret)) {
-      console.error("[Webhook] Invalid signature. Check LINE_CHANNEL_SECRET.");
+      console.error("[Webhook] SIGNATURE VERIFICATION FAILED");
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
