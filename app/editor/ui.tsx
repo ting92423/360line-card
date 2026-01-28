@@ -80,10 +80,10 @@ export function EditorClient() {
       {/* 桌面版：左右分割 / 手機版：上下分割 */}
       <div className="lg:flex lg:h-screen">
         {/* 左側/上方：預覽區 */}
-        <div className="lg:w-1/2 lg:sticky lg:top-0 lg:h-screen bg-gradient-to-b from-gray-900 to-gray-800 shadow-xl">
+        <div className="h-screen lg:w-1/2 lg:sticky lg:top-0 bg-gradient-to-b from-gray-900 to-gray-800 shadow-xl">
           <div className="h-full flex flex-col">
             {/* Header */}
-            <div className="px-4 py-3 lg:py-4 flex items-center justify-between border-b border-gray-700">
+            <div className="px-4 py-3 lg:py-4 flex items-center justify-between border-b border-gray-700 flex-shrink-0">
               <h1 className="text-white font-bold text-lg lg:text-xl">DUO ID 編輯器</h1>
               <button className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors">
                 儲存
@@ -91,7 +91,7 @@ export function EditorClient() {
             </div>
 
             {/* Carousel Container */}
-            <div className="flex-1 relative flex items-center justify-center px-4 py-6 lg:py-10">
+            <div className="flex-1 relative flex items-center justify-center px-2 py-4 lg:px-4 lg:py-10 min-h-0">
             {/* Left Arrow */}
             <button
               onClick={scrollPrev}
@@ -102,11 +102,11 @@ export function EditorClient() {
             </button>
 
             {/* Embla Carousel */}
-            <div className="overflow-hidden w-full max-w-sm lg:max-w-md" ref={emblaRef}>
-              <div className="flex">
+            <div className="overflow-hidden w-full h-full flex items-center" ref={emblaRef}>
+              <div className="flex h-full">
                 {TEMPLATES.map((template) => (
-                  <div key={template.id} className="flex-[0_0_100%] min-w-0 px-2 lg:px-4">
-                    <div className="aspect-[9/16] max-h-[50vh] lg:max-h-[70vh]">
+                  <div key={template.id} className="flex-[0_0_100%] min-w-0 px-3 lg:px-4 h-full flex items-center justify-center">
+                    <div className="w-full max-w-[280px] lg:max-w-md" style={{ aspectRatio: '9/16', maxHeight: 'calc(100vh - 140px)' }}>
                       <template.component data={cardData} />
                     </div>
                   </div>
@@ -124,7 +124,7 @@ export function EditorClient() {
             </button>
 
             {/* Dots Indicator */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-30">
               {TEMPLATES.map((_, index) => (
                 <div
                   key={index}
