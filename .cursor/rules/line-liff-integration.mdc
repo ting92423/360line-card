@@ -1,0 +1,14 @@
+---
+description: LINE LIFF/LINE Login 整合規範（避免踩坑）
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# LINE LIFF 整合規範
+
+- **LIFF 僅在 client 初始化**：`import("@line/liff")` 只能在瀏覽器/互動時動態載入。
+- **以 server 驗證身分**：client 取得 `idToken` 後送到 server 驗證（`/oauth2/v2.1/verify`），server 再簽 session cookie。
+- **分享能力降級**：非 LINE in-client 時，分享按鈕要降級（複製連結或 Web Share API）。
+- **bot_prompt**：加入好友提示要在 LINE Developers 的 LIFF 設定開啟，程式碼端不要假設一定存在。
+- **HTTPS/Domain**：LIFF Endpoint 的 domain/HTTPS 必須正確，否則 `liff.init`/login 會失敗。
+

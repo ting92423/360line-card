@@ -1,0 +1,14 @@
+---
+description: API 安全與錯誤格式規範（LINE Auth / Session / 輸入驗證）
+globs: app/api/**/*.ts
+alwaysApply: false
+---
+
+# API 安全規範
+
+- **所有寫入 API 必須驗證身分**：沒有 session → `401`；有 session 但無權限 → `403`。
+- **輸入驗證**：所有 request body 用 `zod` 驗證；回應錯誤用 `{ error: string, ... }` 統一格式。
+- **不信任 client**：`ownerLineUserId`/`slug` 以 server 端 session 為準（client 送上來只當參考）。
+- **敏感資料不回傳**：不要把 token、channel secret、session secret 回傳到 client。
+- **Cookie**：`HttpOnly` + `SameSite=Lax`；正式環境 `Secure`。
+

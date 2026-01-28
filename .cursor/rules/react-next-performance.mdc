@@ -1,0 +1,14 @@
+---
+description: React/Next.js 效能與結構規範（依 Vercel best practices 精簡）
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# React/Next 效能規範（精簡版）
+
+- **避免 waterfall**：獨立 async 請用 `Promise.all()`，在 API route「先啟動 promise、最後再 await」。
+- **減少 client bundle**：能用 Server Component 就別用 Client Component；第三方 SDK（如 LIFF）用動態 import、只在需要時載入。
+- **序列化最小化**：Server → Client 只傳 UI 必要欄位，避免把整包物件或 token 傳到 client。
+- **避免多餘 re-render**：effect dependencies 用 primitive；昂貴運算用 `useMemo`；更新 state 優先用 functional setState。
+- **非關鍵工作延後**：分析/事件上報用 `navigator.sendBeacon` 或在互動後觸發，避免阻塞首屏。
+

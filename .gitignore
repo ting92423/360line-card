@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Production
+*.log
+
+# Environment Variables (重要：不要提交到 Git)
+.env
+.env*.local
+.env.production
+
+# Vercel
+.vercel
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 臨時文件
+*.tmp
+*.temp
+
+# 測試文件（根據需求）
+# data/cards.json  # 如果不想提交本地資料，可以取消註解

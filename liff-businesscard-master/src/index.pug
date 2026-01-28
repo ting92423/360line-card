@@ -1,0 +1,49 @@
+extends /layout/default
+
+block beforehtml
+  -
+    title = '免費樣版列表'
+    description = '點此連結來製作自己的 LINE 數位版名片吧！'
+
+block meta
+  meta(property="og:image:height", content="640")
+  meta(property="og:image:width", content="1280")
+  meta(property="og:image", content="https://i.imgur.com/j017Uof.png")
+  meta(property="og:url", content=baseurl)
+
+block style
+  style
+    :sass
+      #businesscards .card-body
+        border-top: 1px solid rgba(0,0,0,.125)
+
+block content
+  include /component/navbar
+  #app.container.my-4(v-cloak)
+    h1.my-3.text-center 免費樣版列表
+    #businesscards.row.row-cols-1.row-cols-md-2.row-cols-xl-3
+      .col.mb-4(v-for="card in businesscards")
+        .card.h-100
+          img.card-img-top(:src="card.preview", style="aspect-ratio: 1280/640")
+          .card-body.d-flex.flex-column
+            h5.card-title {{ card.name }}
+            h6.card-subtitle.mb-2.text-muted By {{ card.author }}
+            p.card-text {{ card.description }}
+            a.btn.btn-primary.mt-auto(:href='baseurl + card.form') #[i.fa.mr-2.fa-id-card-o] 點此建立名片
+
+block script
+  script.
+    const vm = new Vue({ // eslint-disable-line
+      el: '#app',
+      data: {
+        baseurl: '#{baseurl}',
+        businesscards: [],
+      },
+      async mounted () {
+        try {
+          this.businesscards = await window.getCsv('#{baseurl}businesscards.csv')
+        } catch (err) {
+          await Swal.fire({ icon: 'error', title: '初始化失敗', text: err.message })
+        }
+      },
+    })

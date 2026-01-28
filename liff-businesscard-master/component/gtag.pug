@@ -1,0 +1,40 @@
+if GTAG_ID
+  script(async, src=`https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`)
+  script.
+    ;(() => {
+      // initialize gtag
+      window.dataLayer = window.dataLayer || []
+      function gtag () { window.dataLayer.push(arguments) }
+      gtag.id = '#{GTAG_ID}'
+      gtag('js', new Date())
+      gtag('config', gtag.id)
+
+      // set LINE userId
+      gtag.configUserId = userId => {
+        if (!_.isString(userId)) return
+        gtag('config', gtag.id, { user_id: userId })
+      }
+
+      // send event
+      gtag.event = (name, params) => { gtag('event', name, params) }
+
+      gtag.genClientId = () => `${_.random(2147483647)}.${Math.trunc(Date.now() / 1e3)}`
+
+      gtag.genClientIdByLineId = (lineId = '') => {
+        if (!/U[0-9a-f]{32}$/.test(lineId)) lineId = 'Udeadbeefdeadbeefdeadbeefdeadbeef'
+        const u32s = new Uint32Array(_.map(lineId.slice(1).match(/.{8}/g), hex => _.parseInt(hex, 16)))
+        for (let i = 0; i < 2; i++) u32s[i] ^= u32s[i + 2]
+        return `${u32s[0]}.${u32s[1]}`
+      }
+
+      gtag.mpCollectUrl = json => {
+        const url = new URL('https://gcf-line-devbot-ybtjbo45iq-uc.a.run.app/mp/collect')
+        url.searchParams.set('measurement_id', gtag.id)
+        url.searchParams.set('api_secret', '#{GTAG_API_SECRET}')
+        if (!json.client_id) json.client_id = gtag.genClientId()
+        url.searchParams.set('json', window.encodeBase64url(JSON5.stringify(window.beautifyFlex(json))))
+        return url.href
+      }
+
+      window.gtag = gtag // expose gtag
+    })()

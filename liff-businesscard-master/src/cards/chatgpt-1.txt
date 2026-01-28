@@ -1,0 +1,219 @@
+<%
+const DESIGNS = {
+  gpt4: { imgur: 'TfKtcc7' },
+  default: { imgur: '7u8NHYz' },
+}
+function truncate (str) {
+  return _.truncate(str, { length: 20, omission: '' })
+}
+function gaScreenView (vcard) {
+  const TEMPLATE_NAME = 'ChatGPT-2023/04/18'
+  let hash = CryptoJS.HmacMD5(JSON.stringify(vcard), TEMPLATE_NAME)
+  hash = CryptoJS.enc.Base64.stringify(hash).replace(/[+/=]/g, c => _.get({ '+': '-', '/': '_', '=': '' }, c))
+  return gtag.mpCollectUrl({
+    client_id: gtagClientId,
+    events: [{
+      name: 'template_impression',
+      params: {
+        session_id: gtagSessionId,
+        share_by: profile.userId ?? 'unknown',
+        template_name: TEMPLATE_NAME,
+        vcard_hash: hash,
+        vcard_name: truncate(vcard.prompt),
+      },
+    }],
+  })
+}
+function escapeStr (str) {
+  if (!_.isString(str)) return str
+  return JSON.stringify(str).slice(1, -1)
+}
+%>
+
+{
+  "altText": "${vcard.altText}",
+  "type": "flex",
+  "contents": {
+    "size": "giga",
+    "type": "bubble",
+    "body": {
+      "layout": "vertical",
+      "paddingAll": "0px",
+      "type": "box",
+      "contents": [
+        {
+          "backgroundColor": "#343541",
+          "layout": "horizontal",
+          "paddingAll": "16px",
+          "type": "box",
+          "action": {
+            "label": "action",
+            "type": "uri",
+            "uri": "${liffLink}"
+          },
+          "contents": [
+            {
+              "cornerRadius": "2px",
+              "height": "30px",
+              "layout": "vertical",
+              "type": "box",
+              "width": "30px",
+              "contents": [
+                {
+                  "aspectMode": "cover",
+                  "aspectRatio": "1:1",
+                  "size": "full",
+                  "type": "image",
+                  "url": "${vcard.avatar}"
+                }
+              ]
+            },
+            {
+              "layout": "vertical",
+              "margin": "24px",
+              "type": "box",
+              "contents": [
+                {
+                  "color": "#ffffff",
+                  "lineSpacing": "6px",
+                  "size": "16px",
+                  "text": "${escapeStr(vcard.prompt)}",
+                  "type": "text",
+                  "wrap": true
+                },
+                {
+                  "alignItems": "center",
+                  "justifyContent": "flex-end",
+                  "layout": "horizontal",
+                  "margin": "16px",
+                  "type": "box",
+                  "contents": [
+                    {
+                      "height": "16px",
+                      "layout": "vertical",
+                      "type": "box",
+                      "width": "16px",
+                      "contents": [
+                        {
+                          "aspectMode": "cover",
+                          "aspectRatio": "1:1",
+                          "size": "full",
+                          "type": "image",
+                          "url": "https://i.imgur.com/cpgkZST.png"
+                        }
+                      ]
+                    },
+                    {
+                      "color": "#acacbe",
+                      "flex": 0,
+                      "margin": "6px",
+                      "size": "14px",
+                      "text": "分享",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "backgroundColor": "#444654",
+          "layout": "horizontal",
+          "paddingAll": "16px",
+          "type": "box",
+          "action": {
+            "label": "action",
+            "type": "uri",
+            "uri": "${_.trim(vcard.link)}"
+          },
+          "contents": [
+            {
+              "cornerRadius": "2px",
+              "height": "30px",
+              "layout": "vertical",
+              "type": "box",
+              "width": "30px",
+              "contents": [
+                {
+                  "aspectMode": "cover",
+                  "aspectRatio": "1:1",
+                  "size": "full",
+                  "type": "image",
+                  "url": "https://i.imgur.com/${(DESIGNS[vcard.design] ?? DESIGNS.default).imgur}.png"
+                }
+              ]
+            },
+            {
+              "layout": "vertical",
+              "margin": "24px",
+              "type": "box",
+              "contents": [
+                {
+                  "color": "#ffffff",
+                  "lineSpacing": "6px",
+                  "size": "16px",
+                  "text": "${escapeStr(vcard.answer)}",
+                  "type": "text",
+                  "wrap": true
+                },
+                {
+                  "alignItems": "center",
+                  "justifyContent": "flex-end",
+                  "layout": "horizontal",
+                  "margin": "16px",
+                  "type": "box",
+                  "contents": [
+                    {
+                      "height": "16px",
+                      "layout": "vertical",
+                      "type": "box",
+                      "width": "16px",
+                      "contents": [
+                        {
+                          "aspectMode": "cover",
+                          "aspectRatio": "1:1",
+                          "size": "full",
+                          "type": "image",
+                          "url": "https://i.imgur.com/TKLR5OZ.png"
+                        }
+                      ]
+                    },
+                    {
+                      "color": "#acacbe",
+                      "flex": 0,
+                      "margin": "6px",
+                      "size": "14px",
+                      "text": "開啟",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "height": "1px",
+          "layout": "vertical",
+          "offsetStart": "0px",
+          "offsetTop": "0px",
+          "position": "absolute",
+          "type": "box",
+          "width": "1px",
+          "contents": [
+            {
+              "align": "center",
+              "aspectMode": "cover",
+              "aspectRatio": "1:1",
+              "gravity": "center",
+              "size": "full",
+              "type": "image",
+              "url": "${gaScreenView(vcard)}"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

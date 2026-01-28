@@ -1,0 +1,14 @@
+extends /src/liff-full/share
+
+block vue-config
+  script.
+    const cfg = window.vueConfig
+    cfg.methods.getVcard = async function () {
+      try {
+        this.vcard = window.parseJsonOrDefault(this.paramBase64url('json5base64'), {})
+      } catch (err) {
+        err.message = `${this.$t('csv.getVcardFail')}${err.message ? ': ' + err.message : ''}`
+        this.render = null
+        throw err
+      }
+    }

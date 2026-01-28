@@ -1,0 +1,22 @@
+{
+  "cards": {
+    "demo": {
+      "slug": "demo",
+      "template": "default",
+      "displayName": "示範使用者",
+      "title": "業務經理",
+      "company": "360LINE Demo Co.",
+      "avatarUrl": "https://profile.line-scdn.net/0hXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "phone": "+886912345678",
+      "email": "demo@example.com",
+      "website": "https://example.com",
+      "lineOaBasicId": "",
+      "social": {
+        "instagram": "https://www.instagram.com/",
+        "facebook": "https://www.facebook.com/",
+        "youtube": "https://www.youtube.com/"
+      }
+    }
+  }
+}
+

@@ -1,0 +1,16 @@
+extends /src/liff-full/share
+
+block vue-config
+  script.
+    const cfg = window.vueConfig
+    cfg.methods = {
+      ...cfg.methods,
+      async getVcard () {
+        try {
+          this.vcard = window.parseJsonOrDefault(this.paramGzip('json5gzip'), {})
+        } catch (err) {
+          this.render = null
+          throw _.set(new Error(err.message), 'originalError', err)
+        }
+      },
+    }
