@@ -54,9 +54,11 @@ async function replyMessage(replyToken: string, messages: any[], token: string) 
  * 歡迎訊息 Flex Message
  */
 function getWelcomeMessage(appOrigin: string, liffId: string) {
-  // 確保 URL 是完整的
-  const safeOrigin = appOrigin || "https://line360-card.vercel.app";
-  const safeLiffId = liffId || "2008993395-5zV6R6Bm";
+  // 確保 URL 是完整的（處理空字串的情況）
+  const safeOrigin = appOrigin?.trim() || "https://line360-card.vercel.app";
+  const safeLiffId = liffId?.trim() || "2008993395-5zV6R6Bm";
+  
+  console.log("[Webhook] Building welcome message with origin:", safeOrigin, "liffId:", safeLiffId);
   
   return {
     type: "flex",
