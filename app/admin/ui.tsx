@@ -20,10 +20,21 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   return json;
 }
 
+interface UserPermissions {
+  canEdit: boolean;
+  canCreateNew: boolean;
+  maxCards: number;
+  plan: string;
+  status: string;
+  message?: string;
+  daysRemaining?: number;
+}
+
 export function AdminClient() {
   const [status, setStatus] = useState<string>("");
   const [lineUserId, setLineUserId] = useState<string>("");
   const [isVerified, setIsVerified] = useState<boolean>(false);
+  const [userPermissions, setUserPermissions] = useState<UserPermissions | null>(null);
   const [draft, setDraft] = useState<Draft>({
     template: "default",
     title: "",
@@ -75,6 +86,16 @@ export function AdminClient() {
           body: JSON.stringify({ idToken })
         });
         setIsVerified(true);
+
+        // 取得用戶權限資訊
+        try {
+          const userData = await fetchJson<{ user: any; permissions: UserPermissions }>("/api/users/me", {
+            headers: { "Authorization": `Bearer ${idToken}` }
+          });
+          setUserPermissions(userData.permissions);
+        } catch (e) {
+          console.warn("Failed to fetch user permissions:", e);
+        }
       } catch {
         setIsVerified(false);
         setStatus("身分驗證失敗（請確認 LINE_CHANNEL_ID/SESSION_SECRET 與 HTTPS/Domain）");
@@ -97,6 +118,13 @@ export function AdminClient() {
       setStatus("尚未完成身分驗證，無法儲存");
       return;
     }
+
+    // 檢查權限
+    if (userPermissions && !userPermissions.canEdit) {
+      setStatus(userPermissions.message || "您的試用期已結束，請升級繼續使用");
+      return;
+    }
+
     setStatus("儲存中...");
     const safeSlug = slug || nanoid(8);
     const payload: Card = {
@@ -136,6 +164,70 @@ export function AdminClient() {
 
   return (
     <div className="panel">
+      {/* 試用狀態橫幅 */}
+      {userPermissions && (userPermissions.status === 'trial' || userPermissions.status === 'expired') && (
+        <div style={{
+          padding: "16px 20px",
+          borderRadius: 12,
+          background: userPermissions.status === 'expired' 
+            ? "linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)"
+            : userPermissions.daysRemaining && userPermissions.daysRemaining <= 3
+            ? "linear-gradient(135deg, #ffd93d 0%, #ffc93d 100%)"
+            : "linear-gradient(135deg, #6BCF7E 0%, #4CAF50 100%)",
+          color: "#fff",
+          marginBottom: 20,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                {userPermissions.status === 'expired' ? '⚠️ 試用期已結束' : 
+                 userPermissions.daysRemaining && userPermissions.daysRemaining <= 3 ? '⏰ 試用期即將結束' : 
+                 '🎉 歡迎使用 360LINE'}
+              </div>
+              <div style={{ fontSize: 14, opacity: 0.95 }}>
+                {userPermissions.message || 
+                 (userPermissions.daysRemaining ? `還有 ${userPermissions.daysRemaining} 天試用時間` : '正在試用中')}
+              </div>
+            </div>
+            {userPermissions.status === 'expired' ? (
+              <a 
+                href="/upgrade" 
+                style={{
+                  padding: "10px 20px",
+                  background: "#fff",
+                  color: "#ff6b6b",
+                  borderRadius: 8,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  fontSize: 14,
+                  whiteSpace: "nowrap"
+                }}
+              >
+                立即升級
+              </a>
+            ) : (userPermissions.daysRemaining && userPermissions.daysRemaining <= 3) ? (
+              <a 
+                href="/upgrade" 
+                style={{
+                  padding: "10px 20px",
+                  background: "rgba(255,255,255,0.3)",
+                  color: "#fff",
+                  borderRadius: 8,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  fontSize: 14,
+                  whiteSpace: "nowrap",
+                  border: "2px solid rgba(255,255,255,0.5)"
+                }}
+              >
+                查看方案
+              </a>
+            ) : null}
+          </div>
+        </div>
+      )}
+
       <div className="row" style={{ alignItems: "center", justifyContent: "space-between" }}>
         <div>
           <div style={{ fontWeight: 800 }}>編輯名片</div>
@@ -144,11 +236,27 @@ export function AdminClient() {
           </div>
           <div className="muted" style={{ marginTop: 4 }}>
             驗證：{isVerified ? "已完成" : "未完成"}
+            {userPermissions && (
+              <span style={{ marginLeft: 8, color: userPermissions.status === 'trial' ? '#ffc93d' : '#6BCF7E' }}>
+                ({userPermissions.plan === 'trial' ? '試用版' : 
+                  userPermissions.plan === 'pro' ? '專業版' : 
+                  userPermissions.plan === 'enterprise' ? '企業版' : '免費版'})
+              </span>
+            )}
           </div>
         </div>
         <div className="row">
-          <button className="btn primary" type="button" onClick={onSave}>
-            儲存
+          <button 
+            className="btn primary" 
+            type="button" 
+            onClick={onSave}
+            disabled={userPermissions?.canEdit === false}
+            style={{
+              opacity: userPermissions?.canEdit === false ? 0.5 : 1,
+              cursor: userPermissions?.canEdit === false ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {userPermissions?.canEdit === false ? '試用已結束' : '儲存'}
           </button>
           {previewUrl ? (
             <a className="btn" href={previewUrl} target="_blank" rel="noreferrer">
