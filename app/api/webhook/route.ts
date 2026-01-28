@@ -133,6 +133,11 @@ function getWelcomeMessage(appOrigin: string, liffId: string) {
  * 方案介紹 Flex Message
  */
 function getPricingMessage(liffId: string) {
+  // 確保 LIFF ID 是完整的
+  const safeLiffId = liffId?.trim() || "2008993395-5zV6R6Bm";
+  
+  console.log("[Webhook] Building pricing message with liffId:", safeLiffId);
+  
   return {
     type: "flex",
     altText: "360LINE 方案介紹",
@@ -155,7 +160,7 @@ function getPricingMessage(liffId: string) {
             contents: [
               {
                 type: "button",
-                action: { type: "uri", label: "立即體驗", uri: `https://liff.line.me/${liffId}` },
+                action: { type: "uri", label: "立即體驗", uri: `https://liff.line.me/${safeLiffId}` },
                 style: "primary"
               }
             ]
