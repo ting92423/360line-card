@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { verifyIdToken } from "@/lib/auth/lineVerify";
+import { verifyLineIdToken } from "@/lib/auth/lineVerify";
 import { getUser, createUser, checkUserPermissions } from "@/lib/auth/userManager";
 
 export async function GET(request: NextRequest) {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
 
     const idToken = authHeader.substring(7);
-    const payload = await verifyIdToken(idToken);
+    const payload = await verifyLineIdToken(idToken);
 
     if (!payload?.sub) {
       return NextResponse.json(
