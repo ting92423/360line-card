@@ -359,19 +359,25 @@ function getPricingMessage() {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("[Webhook] Received request");
     // 驗證簽名
     const body = await request.text();
     const signature = request.headers.get("x-line-signature");
 
+    console.log("[Webhook] Signature:", signature);
+    console.log("[Webhook] Body length:", body.length);
+
     if (!signature || !verifySignature(body, signature)) {
+      console.error("[Webhook] Invalid signature");
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
     const data = JSON.parse(body);
+    console.log("[Webhook] Events count:", data.events?.length);
 
     // 處理每個事件
     for (const event of data.events) {
-      console.log("[Webhook] Event:", event.type);
+      console.log("[Webhook] Processing event:", event.type);
 
       // 用戶加入好友
       if (event.type === "follow") {
