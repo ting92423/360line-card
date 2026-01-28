@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "smoke:editor": "node scripts/smoke-editor.mjs"
   },
   "dependencies": {
     "@line/liff": "^2.26.0",
