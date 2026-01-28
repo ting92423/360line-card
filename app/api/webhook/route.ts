@@ -172,6 +172,8 @@ export async function POST(request: NextRequest) {
   const liffId = process.env.NEXT_PUBLIC_LIFF_ID || "";
   const origin = process.env.NEXT_PUBLIC_APP_ORIGIN || "";
 
+  console.log("[Webhook] Environment check - LIFF_ID:", liffId, "ORIGIN:", origin);
+
   try {
     const body = await request.text();
     const signature = request.headers.get("x-line-signature") || "";
