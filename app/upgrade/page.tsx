@@ -2,12 +2,7 @@
  * 升級頁面 - 方案選擇與付費
  */
 
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "升級方案 - 360LINE 電子名片",
-  description: "選擇適合您的方案，解鎖更多強大功能"
-};
+"use client";
 
 export default function UpgradePage() {
   return (
