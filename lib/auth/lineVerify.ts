@@ -6,6 +6,9 @@ const VerifyResponseSchema = z.object({
   expires_in: z.number().optional(),
   // `sub` 是 LINE userId
   sub: z.string(),
+  name: z.string().optional(),
+  picture: z.string().optional(),
+  email: z.string().optional(),
   aud: z.string().optional(),
   iss: z.string().optional()
 });
