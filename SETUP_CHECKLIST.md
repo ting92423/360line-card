@@ -16,27 +16,27 @@
   - Channel 名稱：`___________________`
   - 記錄以下資訊：
     ```
-    Channel ID: ___________________
-    Channel Secret: ___________________
-    Basic ID (官方帳號): @___________________
+    Channel ID: 2008993307
+    Channel Secret: a490ffbc1cf3ff10e193045c3c7fa24b
+    Basic ID (官方帳號): @870wugrg
     ```
 
 - [ ] **1-4. Messaging API 額外設定**
   - [ ] 前往 LINE Official Account Manager
   - [ ] 關閉「自動回應訊息」
-  - [ ] （選用）生成 Channel Access Token
+  - [ ] （選用）生成 Channel Access Token: exIS1hKqFGtk4R8agMs9acHUZA91eszqNMawoP0N1mwrmFU9dlYokAsyD/jeNNQCL3LL41gsrp4qHl8iW8znmQ+bimNpkYcOrFZVAO5d5VGVKmpCLFWoYHH8KGDpLw2aRsBndeT8rl/mns2mk6yGQQdB04t89/1O/w1cDnyilFU=
 
 - [ ] **1-5. 建立 LINE Login Channel**
   - Channel 名稱：`___________________`
   - 記錄 Channel ID：`___________________`
 
-- [ ] **1-6. 建立 LIFF App（開發版）**
+- [x] **1-6. 建立 LIFF App（開發版）**
   - LIFF 名稱：名片後台-開發版
   - Size：Full
   - Endpoint URL：`http://localhost:3000/admin`
   - Scope：✅ profile ✅ openid
   - Bot link feature：✅ On (Normal)
-  - 記錄 LIFF ID：`___________________`
+  - 記錄 LIFF ID：`2008993395-5zV6R6Bm`
 
 - [ ] **1-7. 連結 Bot（加好友提示）**
   - [ ] 在 LIFF 設定中點擊「Link」
@@ -181,7 +181,7 @@ Channel 名稱：___________________
 Channel ID：___________________
 
 === LIFF Apps ===
-開發版 LIFF ID：___________________
+開發版 LIFF ID：2008993395-5zV6R6Bm
   └─ Endpoint：http://localhost:3000/admin
 
 正式版 LIFF ID：___________________
