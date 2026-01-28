@@ -1,5 +1,5 @@
 import type { Card } from "@/lib/types";
-import { getCardStore } from "@/lib/storage";
+import { getCardStore } from "@/lib/storage/index";
 
 // Back-compat wrapper：其餘程式碼仍可用 getCard/upsertCard
 export async function getCard(slug: string): Promise<Card | null> {
