@@ -62,7 +62,7 @@ function getWelcomeMessage(appOrigin: string, liffId: string) {
   
   return {
     type: "flex",
-    altText: "歡迎體驗 360LINE 電子名片！",
+    altText: "歡迎體驗 DUO ID 電子名片！",
     contents: {
       type: "bubble",
       hero: {
@@ -78,14 +78,14 @@ function getWelcomeMessage(appOrigin: string, liffId: string) {
         contents: [
           {
             type: "text",
-            text: "歡迎體驗 360LINE",
+            text: "歡迎體驗 DUO ID",
             weight: "bold",
             size: "xl",
             color: "#1DB446"
           },
           {
             type: "text",
-            text: "電子名片系統",
+            text: "智慧型電子名片",
             size: "lg",
             color: "#666666",
             margin: "md"
@@ -100,10 +100,10 @@ function getWelcomeMessage(appOrigin: string, liffId: string) {
             margin: "lg",
             spacing: "sm",
             contents: [
-              { type: "text", text: "✨ 3分鐘快速體驗", size: "sm" },
-              { type: "text", text: "🎨 多種精美樣板", size: "sm" },
-              { type: "text", text: "📊 詳細數據分析", size: "sm" },
-              { type: "text", text: "🆓 7天免費試用", size: "sm", weight: "bold" }
+              { type: "text", text: "✨ 即時預覽編輯", size: "sm" },
+              { type: "text", text: "🎨 三種精美風格", size: "sm" },
+              { type: "text", text: "📱 手機完美體驗", size: "sm" },
+              { type: "text", text: "🆓 完全免費使用", size: "sm", weight: "bold" }
             ]
           }
         ]
@@ -120,7 +120,7 @@ function getWelcomeMessage(appOrigin: string, liffId: string) {
             action: {
               type: "uri",
               label: "🚀 立即體驗",
-              uri: `https://liff.line.me/${safeLiffId}`
+              uri: `${safeOrigin}/editor`
             }
           }
         ]
@@ -132,15 +132,15 @@ function getWelcomeMessage(appOrigin: string, liffId: string) {
 /**
  * 方案介紹 Flex Message
  */
-function getPricingMessage(liffId: string) {
-  // 確保 LIFF ID 是完整的
-  const safeLiffId = liffId?.trim() || "2008993395-5zV6R6Bm";
+function getPricingMessage(appOrigin: string) {
+  // 確保 URL 是完整的
+  const safeOrigin = appOrigin?.trim() || "https://line360-card.vercel.app";
   
-  console.log("[Webhook] Building pricing message with liffId:", safeLiffId);
+  console.log("[Webhook] Building pricing message with origin:", safeOrigin);
   
   return {
     type: "flex",
-    altText: "360LINE 方案介紹",
+    altText: "DUO ID 方案介紹",
     contents: {
       type: "carousel",
       contents: [
@@ -150,8 +150,11 @@ function getPricingMessage(liffId: string) {
             type: "box",
             layout: "vertical",
             contents: [
-              { type: "text", text: "🆓 體驗版", weight: "bold", size: "xl", color: "#1DB446" },
-              { type: "text", text: "7天免費試用", size: "sm", margin: "md" }
+              { type: "text", text: "🆓 免費版", weight: "bold", size: "xl", color: "#1DB446" },
+              { type: "text", text: "完全免費使用", size: "sm", margin: "md" },
+              { type: "text", text: "✓ 即時編輯預覽", size: "xs", margin: "md", color: "#666666" },
+              { type: "text", text: "✓ 三種精美模板", size: "xs", margin: "sm", color: "#666666" },
+              { type: "text", text: "✓ 一鍵分享名片", size: "xs", margin: "sm", color: "#666666" }
             ]
           },
           footer: {
@@ -160,7 +163,7 @@ function getPricingMessage(liffId: string) {
             contents: [
               {
                 type: "button",
-                action: { type: "uri", label: "立即體驗", uri: `https://liff.line.me/${safeLiffId}` },
+                action: { type: "uri", label: "立即體驗", uri: `${safeOrigin}/editor` },
                 style: "primary"
               }
             ]
@@ -212,9 +215,9 @@ export async function POST(request: NextRequest) {
         if (text.includes("體驗") || text.includes("開始")) {
           await replyMessage(event.replyToken, [getWelcomeMessage(origin, liffId)], token);
         } else if (text.includes("價格") || text.includes("方案")) {
-          await replyMessage(event.replyToken, [getPricingMessage(liffId)], token);
+          await replyMessage(event.replyToken, [getPricingMessage(origin)], token);
         } else {
-          await replyMessage(event.replyToken, [{ type: "text", text: "您好！輸入「體驗」開始建立名片，或「價格」查看方案。" }], token);
+          await replyMessage(event.replyToken, [{ type: "text", text: "您好！輸入「體驗」開始建立名片，或「價格」查看方案。\n\n🎨 DUO ID - 智慧型電子名片" }], token);
         }
       }
     }
