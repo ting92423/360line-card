@@ -54,6 +54,10 @@ async function replyMessage(replyToken: string, messages: any[], token: string) 
  * 歡迎訊息 Flex Message
  */
 function getWelcomeMessage(appOrigin: string, liffId: string) {
+  // 確保 URL 是完整的
+  const safeOrigin = appOrigin || "https://line360-card.vercel.app";
+  const safeLiffId = liffId || "2008993395-5zV6R6Bm";
+  
   return {
     type: "flex",
     altText: "歡迎體驗 360LINE 電子名片！",
@@ -61,7 +65,7 @@ function getWelcomeMessage(appOrigin: string, liffId: string) {
       type: "bubble",
       hero: {
         type: "image",
-        url: `${appOrigin}/avatar-placeholder.svg`, // 改用現有的檔案
+        url: `${safeOrigin}/avatar-placeholder.svg`,
         size: "full",
         aspectRatio: "20:13",
         aspectMode: "cover"
@@ -114,7 +118,7 @@ function getWelcomeMessage(appOrigin: string, liffId: string) {
             action: {
               type: "uri",
               label: "🚀 立即體驗",
-              uri: `https://liff.line.me/${liffId}`
+              uri: `https://liff.line.me/${safeLiffId}`
             }
           }
         ]
