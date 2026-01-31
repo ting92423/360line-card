@@ -94,7 +94,11 @@ export function AdminClient() {
           });
           setUserPermissions(userData.permissions);
         } catch (e) {
-          console.warn("Failed to fetch user permissions:", e);
+          // 權限獲取失敗不阻擋主流程，但提示用戶
+          if (process.env.NODE_ENV === "development") {
+            console.warn("Failed to fetch user permissions:", e);
+          }
+          setStatus("部分功能可能受限（無法取得權限資訊）");
         }
       } catch {
         setIsVerified(false);
@@ -163,7 +167,49 @@ export function AdminClient() {
   const previewUrl = slug ? `/c/${encodeURIComponent(slug)}` : "";
 
   return (
-    <div className="panel">
+    <div>
+      {/* 頂部導航 */}
+      <div style={{ 
+        display: "flex", 
+        alignItems: "center", 
+        gap: 16, 
+        marginBottom: 20,
+        padding: "12px 0"
+      }}>
+        <a 
+          href="/"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            color: "var(--muted)",
+            textDecoration: "none",
+            fontSize: 14,
+            transition: "color 0.2s"
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = "var(--text)"}
+          onMouseLeave={(e) => e.currentTarget.style.color = "var(--muted)"}
+        >
+          ← 返回首頁
+        </a>
+        <span style={{ color: "var(--muted)" }}>|</span>
+        <a 
+          href="/editor"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            color: "#FF6B35",
+            textDecoration: "none",
+            fontSize: 14,
+            fontWeight: 600
+          }}
+        >
+          🎨 新版編輯器
+        </a>
+      </div>
+
+      <div className="panel">
       {/* 試用狀態橫幅 */}
       {userPermissions && (userPermissions.status === 'trial' || userPermissions.status === 'expired') && (
         <div style={{
@@ -355,6 +401,7 @@ export function AdminClient() {
           value={draft.social?.linkedin || ""}
           onChange={(v) => setDraft((d) => ({ ...d, social: { ...(d.social || {}), linkedin: v } }))}
         />
+      </div>
       </div>
     </div>
   );

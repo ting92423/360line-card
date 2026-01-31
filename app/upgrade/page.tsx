@@ -4,17 +4,203 @@
 
 "use client";
 
+import { useState } from "react";
+import { ArrowLeft, CheckCircle, Clock, Mail, Send, Loader2 } from "lucide-react";
+
 export default function UpgradePage() {
+  const [showProContact, setShowProContact] = useState(false);
+  const [showContact, setShowContact] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  
+  const handleProContact = () => {
+    setShowProContact(true);
+    setSubmitSuccess(false);
+  };
+  
+  const handleSubmitContact = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // 模擬提交（實際應發送到後端或郵件服務）
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // 發送 mailto
+    const subject = encodeURIComponent(`[DUO ID 升級諮詢] ${contactForm.name}`);
+    const body = encodeURIComponent(
+      `姓名：${contactForm.name}\n` +
+      `Email：${contactForm.email}\n` +
+      `電話：${contactForm.phone}\n\n` +
+      `訊息：\n${contactForm.message}`
+    );
+    window.open(`mailto:sales@360line.com?subject=${subject}&body=${body}`, "_blank");
+    
+    setIsSubmitting(false);
+    setSubmitSuccess(true);
+  };
+
   return (
     <main style={{ minHeight: "100vh", background: "var(--bg)" }}>
+      {/* 專業版諮詢表單 Modal */}
+      {showProContact && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+            {submitSuccess ? (
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">已收到您的資料</h3>
+                <p className="text-gray-600 mb-6">
+                  我們會在 1-2 個工作日內與您聯繫<br/>
+                  感謝您對 DUO ID 專業版的興趣！
+                </p>
+                <button
+                  onClick={() => { setShowProContact(false); setContactForm({ name: "", email: "", phone: "", message: "" }); }}
+                  className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium rounded-xl"
+                >
+                  關閉
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                    <Mail className="w-8 h-8 text-amber-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">升級諮詢</h3>
+                  <p className="text-gray-600 text-sm">
+                    留下您的聯絡方式，我們會盡快與您聯繫！
+                  </p>
+                </div>
+                
+                <form onSubmit={handleSubmitContact} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">姓名 *</label>
+                    <input
+                      type="text"
+                      required
+                      value={contactForm.name}
+                      onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                      placeholder="您的姓名"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                    <input
+                      type="email"
+                      required
+                      value={contactForm.email}
+                      onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                      placeholder="your@email.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">電話（選填）</label>
+                    <input
+                      type="tel"
+                      value={contactForm.phone}
+                      onChange={(e) => setContactForm(prev => ({ ...prev, phone: e.target.value }))}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                      placeholder="0912-345-678"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">備註（選填）</label>
+                    <textarea
+                      value={contactForm.message}
+                      onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                      rows={3}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none resize-none"
+                      placeholder="有任何問題或需求都可以告訴我們"
+                    />
+                  </div>
+                  
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowProContact(false)}
+                      className="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
+                    >
+                      取消
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex-1 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          送出中...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-5 h-5" />
+                          送出諮詢
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 聯繫業務 Modal */}
+      {showContact && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
+            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+              <Mail className="w-8 h-8 text-blue-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">聯繫業務團隊</h3>
+            <p className="text-gray-600 mb-6">
+              感謝您對企業方案的興趣！<br/>
+              請透過以下方式聯繫我們的業務團隊。
+            </p>
+            <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left">
+              <p className="text-sm text-gray-600 mb-2">
+                <span className="font-medium">📧 Email：</span>
+                <a href="mailto:sales@360line.com" className="text-blue-600">sales@360line.com</a>
+              </p>
+              <p className="text-sm text-gray-600">
+                <span className="font-medium">💬 LINE：</span>
+                <a href="https://lin.ee/xxxxx" className="text-green-600">@360line</a>
+              </p>
+            </div>
+            <button
+              onClick={() => setShowContact(false)}
+              className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium rounded-xl"
+            >
+              關閉
+            </button>
+          </div>
+        </div>
+      )}
+
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 20px" }}>
+        {/* 返回按鈕 */}
+        <a 
+          href="/"
+          className="inline-flex items-center gap-2 text-gray-400 hover:text-gray-200 mb-8 transition-colors"
+        >
+          <ArrowLeft size={18} />
+          <span>返回首頁</span>
+        </a>
+
         {/* 標題區 */}
         <div style={{ textAlign: "center", marginBottom: 60 }}>
           <h1 style={{ fontSize: 42, fontWeight: 800, marginBottom: 16, color: "var(--text)" }}>
             選擇適合您的方案
           </h1>
           <p style={{ fontSize: 18, color: "var(--muted)", maxWidth: 600, margin: "0 auto" }}>
-            從體驗到專業，從個人到企業，360LINE 為您提供最靈活的解決方案
+            從體驗到專業，從個人到企業，DUO ID 為您提供最靈活的解決方案
           </p>
         </div>
 
@@ -53,11 +239,11 @@ export default function UpgradePage() {
             
             <ul style={{ listStyle: "none", padding: 0, marginBottom: 30 }}>
               {[
-                "✅ 基本名片功能",
-                "✅ 3種精美樣板",
-                "✅ 無限分享",
-                "✅ 基礎統計",
-                "⏰ 過期後只能查看"
+                "✅ 完整名片功能",
+                "✅ 2款免費模板",
+                "✅ 無限分享次數",
+                "✅ 基礎統計分析",
+                "🎁 7天後可升級恢復編輯"
               ].map((feature, i) => (
                 <li key={i} style={{ marginBottom: 12, fontSize: 14, color: "var(--text)" }}>
                   {feature}
@@ -102,10 +288,13 @@ export default function UpgradePage() {
             </div>
             
             <div style={{ fontSize: 14, color: "var(--muted)", marginBottom: 8 }}>專業版</div>
-            <div style={{ fontSize: 48, fontWeight: 800, marginBottom: 8, color: "#FF6B35" }}>
-              NT$199
+            <div style={{ fontSize: 48, fontWeight: 800, marginBottom: 4, color: "#FF6B35" }}>
+              NT$199<span style={{ fontSize: 18, fontWeight: 500 }}>/月</span>
             </div>
-            <div style={{ fontSize: 14, color: "var(--muted)", marginBottom: 24 }}>每月 / 年付 1,990 元</div>
+            <div style={{ fontSize: 14, color: "#4CAF50", fontWeight: 600, marginBottom: 4 }}>
+              年繳 NT$1,990 省 NT$398！
+            </div>
+            <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 24 }}>（約 NT$166/月）</div>
             
             <ul style={{ listStyle: "none", padding: 0, marginBottom: 30 }}>
               {[
@@ -129,9 +318,9 @@ export default function UpgradePage() {
                 background: "linear-gradient(135deg, #FF6B35 0%, #ee5a52 100%)",
                 border: "none"
               }}
-              onClick={() => alert("金流整合開發中，敬請期待！")}
+              onClick={handleProContact}
             >
-              立即升級
+              諮詢升級
             </button>
           </div>
 
@@ -155,10 +344,15 @@ export default function UpgradePage() {
             </div>
             
             <div style={{ fontSize: 14, color: "var(--muted)", marginBottom: 8 }}>企業版</div>
-            <div style={{ fontSize: 48, fontWeight: 800, marginBottom: 8, color: "#4A5AFF" }}>
-              NT$99
+            <div style={{ fontSize: 48, fontWeight: 800, marginBottom: 4, color: "#4A5AFF" }}>
+              NT$99<span style={{ fontSize: 18, fontWeight: 500 }}>/人/月</span>
             </div>
-            <div style={{ fontSize: 14, color: "var(--muted)", marginBottom: 24 }}>每人每月 / 最少5人</div>
+            <div style={{ fontSize: 14, color: "var(--muted)", marginBottom: 4 }}>
+              最低 NT$495/月（5人起）
+            </div>
+            <div style={{ fontSize: 12, color: "#4CAF50", fontWeight: 600, marginBottom: 24 }}>
+              人數越多越划算！
+            </div>
             
             <ul style={{ listStyle: "none", padding: 0, marginBottom: 30 }}>
               {[
@@ -183,7 +377,7 @@ export default function UpgradePage() {
                 color: "#fff",
                 border: "none"
               }}
-              onClick={() => alert("請聯繫我們的業務團隊：sales@360line.com")}
+              onClick={() => setShowContact(true)}
             >
               聯繫業務
             </button>
