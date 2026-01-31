@@ -1,63 +1,116 @@
+/**
+ * 講師/顧問模板
+ * 設計風格：專業深色調、金色點綴、課程服務展示
+ */
 import type { Card } from "@/lib/types";
 import { CtaBar } from "@/components/card-templates/cta/CtaBar";
+import { Mic, BookOpen, Users, Award } from "lucide-react";
 
 function PageHeader({ data }: { data: Partial<Card> }) {
   return (
-    <div className="flex items-center gap-4">
-      <div className="h-16 w-16 rounded-2xl bg-white/15 border border-white/15 overflow-hidden">
+    <div className="flex items-start gap-4">
+      {/* 頭像 */}
+      <div className="shrink-0 w-20 h-20 rounded-2xl overflow-hidden border-2 border-amber-500/50 shadow-lg shadow-amber-900/20">
         {data.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={data.avatarUrl} alt={data.displayName} className="h-full w-full object-cover" />
+          <img src={data.avatarUrl} alt={data.displayName} className="w-full h-full object-cover" />
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-2xl font-bold text-white/80">
-            {(data.displayName || "U").charAt(0)}
+          <div className="w-full h-full bg-gradient-to-br from-amber-900/50 to-slate-900 flex items-center justify-center">
+            <span className="text-3xl font-bold text-amber-200">
+              {(data.displayName || "U").charAt(0)}
+            </span>
           </div>
         )}
       </div>
-      <div className="min-w-0">
-        <div className="text-white text-xl font-extrabold truncate">{data.displayName || "講師姓名"}</div>
-        <div className="text-amber-200/90 text-sm font-semibold truncate">{data.title || "講師 / 顧問 / 教練"}</div>
-        <div className="text-white/70 text-xs truncate">{data.company || "品牌 / 工作室"}</div>
+      
+      <div className="min-w-0 flex-1">
+        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 mb-2">
+          <Mic size={10} className="text-amber-400" />
+          <span className="text-amber-300 text-[10px] font-medium">專業講師</span>
+        </div>
+        <h2 className="text-xl font-extrabold text-white truncate">
+          {data.displayName || "講師姓名"}
+        </h2>
+        <p className="text-amber-300 text-sm font-semibold truncate mt-0.5">
+          {data.title || "講師 / 顧問 / 教練"}
+        </p>
+        <p className="text-white/60 text-xs truncate mt-0.5">
+          {data.company || "DUO Academy"}
+        </p>
       </div>
     </div>
   );
 }
 
 function ProfilePage({ data }: { data: Partial<Card> }) {
-  const bio = data.pages?.profile?.bio || "擅長把複雜內容講到你聽懂，讓學員能立刻上手。";
+  const bio = data.pages?.about?.bio || "擅長把複雜內容講到你聽懂，讓學員能立刻上手。";
   return (
-    <div className="mt-4 rounded-2xl bg-white/10 border border-white/10 p-4">
-      <div className="text-white font-bold">一句話介紹</div>
-      <div className="text-white/80 text-sm leading-relaxed mt-2">{bio}</div>
+    <div className="mt-4 space-y-3">
+      <div className="rounded-2xl bg-gradient-to-br from-amber-900/30 to-slate-900/50 border border-amber-700/30 p-4">
+        <div className="flex items-center gap-2 text-amber-400 font-bold text-sm mb-2">
+          <Award size={16} />
+          關於我
+        </div>
+        <p className="text-white/85 text-sm leading-relaxed">{bio}</p>
+      </div>
+      
+      {/* 資歷標籤 */}
+      <div className="flex flex-wrap gap-2">
+        <span className="px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/25 text-amber-200 text-xs font-medium">
+          📚 15年經驗
+        </span>
+        <span className="px-3 py-1.5 rounded-lg bg-slate-700/50 border border-slate-600/50 text-slate-200 text-xs font-medium">
+          🎯 500+ 企業
+        </span>
+      </div>
     </div>
   );
 }
 
 function ServicesPage({ data }: { data: Partial<Card> }) {
-  const headline = data.pages?.services?.headline || "課程 / 服務";
-  const items = data.pages?.services?.items || ["一對一諮詢", "企業內訓", "公開班課程"];
+  const headline = data.pages?.services?.headline || "課程服務";
+  const rawItems = data.pages?.services?.items || [];
+  const items = rawItems.map(item => 
+    typeof item === 'string' ? { name: item, description: '' } : item
+  );
   return (
-    <div className="mt-4 rounded-2xl bg-white/10 border border-white/10 p-4">
-      <div className="text-white font-bold">{headline}</div>
-      <ul className="mt-2 space-y-2">
-        {items.slice(0, 5).map((t, i) => (
-          <li key={i} className="text-white/85 text-sm flex items-start gap-2">
-            <span className="mt-[6px] h-2 w-2 rounded-full bg-amber-300/90 shrink-0" />
-            <span className="leading-relaxed">{t}</span>
-          </li>
+    <div className="mt-4 rounded-2xl bg-gradient-to-br from-amber-900/30 to-slate-900/50 border border-amber-700/30 p-4">
+      <div className="flex items-center gap-2 text-amber-400 font-bold text-sm mb-3">
+        <BookOpen size={16} />
+        {headline}
+      </div>
+      <div className="space-y-2">
+        {items.slice(0, 5).map((item, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10"
+          >
+            <span className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 text-xs font-bold">
+              {i + 1}
+            </span>
+            <div className="flex-1 min-w-0">
+              <span className="text-white/90 text-sm font-medium">{item.name}</span>
+              {item.description && (
+                <p className="text-white/50 text-xs mt-0.5">{item.description}</p>
+              )}
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
 
 function GalleryPage({ data }: { data: Partial<Card> }) {
-  const headline = data.pages?.gallery?.headline || "授課剪影";
-  const images = data.pages?.gallery?.images || [];
+  const headline = data.pages?.portfolio?.headline || "授課剪影";
+  const images = data.pages?.portfolio?.images || [];
   return (
-    <div className="mt-4 rounded-2xl bg-white/10 border border-white/10 p-4">
-      <div className="text-white font-bold">{headline}</div>
-      <div className="mt-3 grid grid-cols-3 gap-2">
+    <div className="mt-4 rounded-2xl bg-gradient-to-br from-amber-900/30 to-slate-900/50 border border-amber-700/30 p-4">
+      <div className="flex items-center gap-2 text-amber-400 font-bold text-sm mb-3">
+        <Users size={16} />
+        {headline}
+      </div>
+      <div className="grid grid-cols-3 gap-2">
         {images.length ? (
           images.slice(0, 6).map((src, idx) => (
             // eslint-disable-next-line @next/next/no-img-element
@@ -65,13 +118,18 @@ function GalleryPage({ data }: { data: Partial<Card> }) {
           ))
         ) : (
           <>
-            <div className="aspect-square rounded-xl bg-white/10" />
-            <div className="aspect-square rounded-xl bg-white/10" />
-            <div className="aspect-square rounded-xl bg-white/10" />
+            <div className="aspect-square rounded-xl bg-gradient-to-br from-amber-900/30 to-slate-800/50 border border-amber-700/20 flex items-center justify-center">
+              <span className="text-xl">🎤</span>
+            </div>
+            <div className="aspect-square rounded-xl bg-gradient-to-br from-amber-900/30 to-slate-800/50 border border-amber-700/20 flex items-center justify-center">
+              <span className="text-xl">👥</span>
+            </div>
+            <div className="aspect-square rounded-xl bg-gradient-to-br from-amber-900/30 to-slate-800/50 border border-amber-700/20 flex items-center justify-center">
+              <span className="text-xl">📊</span>
+            </div>
           </>
         )}
       </div>
-      <div className="text-white/60 text-xs mt-2">（Pro 可顯示更多相片）</div>
     </div>
   );
 }
@@ -80,7 +138,7 @@ export function TemplateLecturer({
   data,
   page,
   shareUrl,
-  onShare
+  onShare,
 }: {
   data: Partial<Card>;
   page: "profile" | "services" | "gallery";
@@ -88,17 +146,25 @@ export function TemplateLecturer({
   onShare?: () => void;
 }) {
   return (
-    <div className="w-full h-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950">
-      <div className="h-full p-5 flex flex-col">
+    <div className="w-full h-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-amber-950 relative">
+      {/* 背景裝飾 */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-amber-500/10 to-transparent rounded-full blur-3xl" />
+      
+      {/* 頂部金邊 */}
+      <div className="h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400" />
+      
+      <div className="relative h-[calc(100%-4px)] p-5 flex flex-col">
         <PageHeader data={data} />
 
-        {page === "profile" ? <ProfilePage data={data} /> : null}
-        {page === "services" ? <ServicesPage data={data} /> : null}
-        {page === "gallery" ? <GalleryPage data={data} /> : null}
+        <div className="flex-1 overflow-auto">
+          {page === "profile" && <ProfilePage data={data} />}
+          {page === "services" && <ServicesPage data={data} />}
+          {page === "gallery" && <GalleryPage data={data} />}
+        </div>
 
         <div className="mt-auto pt-4">
-          {data.ctas ? <CtaBar ctas={data.ctas} shareUrl={shareUrl} onShare={onShare} /> : null}
-          <div className="mt-3 text-center text-[11px] text-white/45">講師模板</div>
+          {data.ctas && <CtaBar ctas={data.ctas} shareUrl={shareUrl} onShare={onShare} />}
+          <div className="mt-3 text-center text-[11px] text-amber-400/40">講師顧問模板</div>
         </div>
       </div>
     </div>

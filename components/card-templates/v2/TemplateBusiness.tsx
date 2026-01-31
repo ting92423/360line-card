@@ -1,24 +1,40 @@
+/**
+ * 企業/商務模板
+ * 設計風格：專業科技感、藍綠漸層、解決方案展示
+ */
 import type { Card } from "@/lib/types";
 import { CtaBar } from "@/components/card-templates/cta/CtaBar";
-import { Building2 } from "lucide-react";
+import { Building2, Briefcase, Target, Layers } from "lucide-react";
 
 function Header({ data }: { data: Partial<Card> }) {
   return (
     <div className="flex items-start gap-4">
-      <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 overflow-hidden flex items-center justify-center shadow-lg">
-        {data.avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={data.avatarUrl} alt={data.displayName} className="h-full w-full object-cover" />
-        ) : (
-          <div className="text-2xl font-bold text-white">{(data.displayName || "U").charAt(0)}</div>
-        )}
+      {/* 頭像 */}
+      <div className="shrink-0 w-18 h-18 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-500 to-cyan-400 p-0.5 shadow-lg shadow-cyan-900/30">
+        <div className="w-full h-full rounded-xl overflow-hidden bg-slate-900">
+          {data.avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={data.avatarUrl} alt={data.displayName} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900 to-cyan-900">
+              <span className="text-2xl font-bold text-cyan-200">
+                {(data.displayName || "U").charAt(0)}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
-      <div className="min-w-0">
-        <div className="text-white text-xl font-extrabold truncate">{data.displayName || "企業名片"}</div>
-        <div className="text-cyan-200/90 text-sm font-semibold truncate">{data.title || "職稱 / 部門"}</div>
-        <div className="mt-1 flex items-center gap-1 text-white/60 text-xs truncate">
-          <Building2 size={12} />
-          <span className="truncate">{data.company || "公司名稱"}</span>
+      
+      <div className="min-w-0 flex-1 pt-1">
+        <h2 className="text-xl font-extrabold text-white truncate">
+          {data.displayName || "企業代表"}
+        </h2>
+        <p className="text-cyan-300 text-sm font-semibold truncate mt-0.5">
+          {data.title || "業務總監"}
+        </p>
+        <div className="mt-2 flex items-center gap-1.5 text-white/60 text-xs">
+          <Building2 size={12} className="text-cyan-400" />
+          <span className="truncate">{data.company || "科技創新股份有限公司"}</span>
         </div>
       </div>
     </div>
@@ -26,25 +42,59 @@ function Header({ data }: { data: Partial<Card> }) {
 }
 
 function Profile({ data }: { data: Partial<Card> }) {
-  const bio = data.pages?.profile?.bio || "專注於解決企業端的效率與成長問題。";
+  const bio = data.pages?.about?.bio || "專注於企業數位轉型解決方案，協助客戶提升營運效率與競爭力。";
   return (
-    <div className="mt-4 rounded-2xl bg-white/8 border border-white/10 p-4">
-      <div className="text-white font-bold">簡介</div>
-      <div className="text-white/80 text-sm leading-relaxed mt-2">{bio}</div>
+    <div className="mt-4 space-y-3">
+      <div className="rounded-2xl bg-gradient-to-br from-blue-900/40 to-cyan-900/20 border border-cyan-700/30 p-4">
+        <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm mb-2">
+          <Briefcase size={16} />
+          專業簡介
+        </div>
+        <p className="text-white/85 text-sm leading-relaxed">{bio}</p>
+      </div>
+      
+      {/* 專長標籤 */}
+      <div className="flex flex-wrap gap-2">
+        <span className="px-3 py-1.5 rounded-lg bg-blue-500/15 border border-blue-500/25 text-blue-200 text-xs font-medium">
+          🚀 數位轉型
+        </span>
+        <span className="px-3 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-500/25 text-cyan-200 text-xs font-medium">
+          ☁️ 雲端整合
+        </span>
+        <span className="px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/25 text-emerald-200 text-xs font-medium">
+          📊 數據分析
+        </span>
+      </div>
     </div>
   );
 }
 
 function Services({ data }: { data: Partial<Card> }) {
-  const headline = data.pages?.services?.headline || "核心服務";
-  const items = data.pages?.services?.items || ["解決方案諮詢", "專案導入", "技術支援"];
+  const headline = data.pages?.services?.headline || "解決方案";
+  const rawItems = data.pages?.services?.items || [];
+  // 支援新舊格式：物件陣列或字串陣列
+  const items = rawItems.map(item => 
+    typeof item === 'string' ? { name: item, description: '' } : item
+  );
   return (
-    <div className="mt-4 rounded-2xl bg-white/8 border border-white/10 p-4">
-      <div className="text-white font-bold">{headline}</div>
-      <div className="mt-3 space-y-2">
-        {items.slice(0, 5).map((t, i) => (
-          <div key={i} className="rounded-xl bg-white/8 border border-white/10 px-3 py-2 text-white/85 text-sm">
-            {t}
+    <div className="mt-4 rounded-2xl bg-gradient-to-br from-blue-900/40 to-cyan-900/20 border border-cyan-700/30 p-4">
+      <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm mb-3">
+        <Target size={16} />
+        {headline}
+      </div>
+      <div className="space-y-2">
+        {items.slice(0, 5).map((item, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-500/30 transition-colors"
+          >
+            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400" />
+            <div className="flex-1 min-w-0">
+              <span className="text-white/90 text-sm font-medium">{item.name}</span>
+              {item.description && (
+                <p className="text-white/50 text-xs mt-0.5">{item.description}</p>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -53,12 +103,15 @@ function Services({ data }: { data: Partial<Card> }) {
 }
 
 function Gallery({ data }: { data: Partial<Card> }) {
-  const headline = data.pages?.gallery?.headline || "案例 / 成果";
-  const images = data.pages?.gallery?.images || [];
+  const headline = data.pages?.portfolio?.headline || "成功案例";
+  const images = data.pages?.portfolio?.images || [];
   return (
-    <div className="mt-4 rounded-2xl bg-white/8 border border-white/10 p-4">
-      <div className="text-white font-bold">{headline}</div>
-      <div className="mt-3 grid grid-cols-3 gap-2">
+    <div className="mt-4 rounded-2xl bg-gradient-to-br from-blue-900/40 to-cyan-900/20 border border-cyan-700/30 p-4">
+      <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm mb-3">
+        <Layers size={16} />
+        {headline}
+      </div>
+      <div className="grid grid-cols-3 gap-2">
         {images.length ? (
           images.slice(0, 6).map((src, idx) => (
             // eslint-disable-next-line @next/next/no-img-element
@@ -66,13 +119,18 @@ function Gallery({ data }: { data: Partial<Card> }) {
           ))
         ) : (
           <>
-            <div className="aspect-square rounded-xl bg-white/10" />
-            <div className="aspect-square rounded-xl bg-white/10" />
-            <div className="aspect-square rounded-xl bg-white/10" />
+            <div className="aspect-square rounded-xl bg-gradient-to-br from-blue-900/50 to-cyan-900/30 border border-cyan-700/20 flex items-center justify-center">
+              <span className="text-xl">💼</span>
+            </div>
+            <div className="aspect-square rounded-xl bg-gradient-to-br from-blue-900/50 to-cyan-900/30 border border-cyan-700/20 flex items-center justify-center">
+              <span className="text-xl">📈</span>
+            </div>
+            <div className="aspect-square rounded-xl bg-gradient-to-br from-blue-900/50 to-cyan-900/30 border border-cyan-700/20 flex items-center justify-center">
+              <span className="text-xl">🏢</span>
+            </div>
           </>
         )}
       </div>
-      <div className="text-white/60 text-xs mt-2">（Pro 可顯示更多案例/頁面）</div>
     </div>
   );
 }
@@ -81,7 +139,7 @@ export function TemplateBusiness({
   data,
   page,
   shareUrl,
-  onShare
+  onShare,
 }: {
   data: Partial<Card>;
   page: "profile" | "services" | "gallery";
@@ -89,18 +147,26 @@ export function TemplateBusiness({
   onShare?: () => void;
 }) {
   return (
-    <div className="w-full h-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-b from-slate-900 to-slate-950">
-      <div className="h-2 bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400" />
-      <div className="h-[calc(100%-8px)] p-5 flex flex-col">
+    <div className="w-full h-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-cyan-950 relative">
+      {/* 背景光效 */}
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-cyan-500/5 to-transparent" />
+      <div className="absolute bottom-0 right-0 w-48 h-48 bg-gradient-to-tl from-blue-500/5 to-transparent rounded-full blur-3xl" />
+      
+      {/* 頂部漸層邊框 */}
+      <div className="h-1.5 bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400" />
+      
+      <div className="relative h-[calc(100%-6px)] p-5 flex flex-col">
         <Header data={data} />
 
-        {page === "profile" ? <Profile data={data} /> : null}
-        {page === "services" ? <Services data={data} /> : null}
-        {page === "gallery" ? <Gallery data={data} /> : null}
+        <div className="flex-1 overflow-auto">
+          {page === "profile" && <Profile data={data} />}
+          {page === "services" && <Services data={data} />}
+          {page === "gallery" && <Gallery data={data} />}
+        </div>
 
         <div className="mt-auto pt-4">
-          {data.ctas ? <CtaBar ctas={data.ctas} shareUrl={shareUrl} onShare={onShare} /> : null}
-          <div className="mt-3 text-center text-[11px] text-white/45">企業模板</div>
+          {data.ctas && <CtaBar ctas={data.ctas} shareUrl={shareUrl} onShare={onShare} />}
+          <div className="mt-3 text-center text-[11px] text-cyan-400/40">企業商務模板</div>
         </div>
       </div>
     </div>

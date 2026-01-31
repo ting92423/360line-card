@@ -1,48 +1,92 @@
+/**
+ * 美業/時尚模板
+ * 設計風格：優雅漸層、柔和粉色調、精緻作品展示
+ */
 import type { Card } from "@/lib/types";
 import { CtaBar } from "@/components/card-templates/cta/CtaBar";
+import { Sparkles, Heart, Camera } from "lucide-react";
 
 function Header({ data }: { data: Partial<Card> }) {
   return (
-    <div className="flex items-center gap-4">
-      <div className="h-16 w-16 rounded-full bg-white/20 border border-white/15 overflow-hidden">
+    <div className="text-center">
+      {/* 頭像 */}
+      <div className="mx-auto w-24 h-24 rounded-full overflow-hidden border-4 border-white/30 shadow-xl shadow-pink-900/30">
         {data.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={data.avatarUrl} alt={data.displayName} className="h-full w-full object-cover" />
+          <img src={data.avatarUrl} alt={data.displayName} className="w-full h-full object-cover" />
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-2xl font-bold text-white/80">
-            {(data.displayName || "U").charAt(0)}
+          <div className="w-full h-full bg-white/20 flex items-center justify-center">
+            <span className="text-3xl font-bold text-white">
+              {(data.displayName || "U").charAt(0)}
+            </span>
           </div>
         )}
       </div>
-      <div className="min-w-0">
-        <div className="text-white text-xl font-extrabold truncate">{data.displayName || "美業職人"}</div>
-        <div className="text-white/80 text-sm truncate">{data.title || "美甲 / 美睫 / 護膚"}</div>
-        <div className="text-white/60 text-xs truncate">{data.company || "工作室 / 沙龍"}</div>
-      </div>
+      
+      {/* 姓名與職稱 */}
+      <h2 className="mt-4 text-2xl font-extrabold text-white drop-shadow-lg">
+        {data.displayName || "美業職人"}
+      </h2>
+      <p className="mt-1 text-white/90 text-sm font-medium">
+        {data.title || "美甲 / 美睫 / 護膚"}
+      </p>
+      <p className="mt-0.5 text-white/70 text-xs">
+        {data.company || "LUXE Beauty Studio"}
+      </p>
     </div>
   );
 }
 
 function Profile({ data }: { data: Partial<Card> }) {
-  const bio = data.pages?.profile?.bio || "專注自然質感，讓你每天都更有自信。";
+  const bio = data.pages?.about?.bio || "專注自然質感，讓你每天都更有自信。";
   return (
-    <div className="mt-4 rounded-2xl bg-white/12 border border-white/10 p-4">
-      <div className="text-white font-bold">風格與特色</div>
-      <div className="text-white/80 text-sm leading-relaxed mt-2">{bio}</div>
+    <div className="mt-4 space-y-3">
+      <div className="rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 p-4">
+        <div className="flex items-center gap-2 text-white font-bold text-sm mb-2">
+          <Sparkles size={16} className="text-yellow-200" />
+          關於我
+        </div>
+        <p className="text-white/90 text-sm leading-relaxed">{bio}</p>
+      </div>
+      
+      {/* 特色標籤 */}
+      <div className="flex flex-wrap gap-2 justify-center">
+        <span className="px-3 py-1.5 rounded-full bg-white/20 border border-white/30 text-white text-xs font-medium">
+          ✨ 韓式技術
+        </span>
+        <span className="px-3 py-1.5 rounded-full bg-white/20 border border-white/30 text-white text-xs font-medium">
+          💖 預約制
+        </span>
+        <span className="px-3 py-1.5 rounded-full bg-white/20 border border-white/30 text-white text-xs font-medium">
+          🌸 私密空間
+        </span>
+      </div>
     </div>
   );
 }
 
 function Services({ data }: { data: Partial<Card> }) {
   const headline = data.pages?.services?.headline || "熱門項目";
-  const items = data.pages?.services?.items || ["凝膠美甲", "睫毛嫁接", "皮膚管理"];
+  const rawItems = data.pages?.services?.items || [];
+  const items = rawItems.map(item => 
+    typeof item === 'string' ? { name: item, description: '' } : item
+  );
   return (
-    <div className="mt-4 rounded-2xl bg-white/12 border border-white/10 p-4">
-      <div className="text-white font-bold">{headline}</div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {items.slice(0, 4).map((t, i) => (
-          <div key={i} className="rounded-xl bg-white/10 border border-white/10 px-3 py-2 text-white/85 text-sm">
-            {t}
+    <div className="mt-4 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 p-4">
+      <div className="flex items-center gap-2 text-white font-bold text-sm mb-3">
+        <Heart size={16} className="text-red-200" />
+        {headline}
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {items.slice(0, 6).map((item, i) => (
+          <div
+            key={i}
+            className="px-3 py-2.5 rounded-xl bg-white/10 border border-white/15 text-center"
+          >
+            <div className="text-white/95 text-sm font-medium">{item.name}</div>
+            {item.description && (
+              <p className="text-white/60 text-xs mt-0.5">{item.description}</p>
+            )}
           </div>
         ))}
       </div>
@@ -51,25 +95,34 @@ function Services({ data }: { data: Partial<Card> }) {
 }
 
 function Gallery({ data }: { data: Partial<Card> }) {
-  const headline = data.pages?.gallery?.headline || "作品集";
-  const images = data.pages?.gallery?.images || [];
+  const headline = data.pages?.portfolio?.headline || "作品集";
+  const images = data.pages?.portfolio?.images || [];
   return (
-    <div className="mt-4 rounded-2xl bg-white/12 border border-white/10 p-4">
-      <div className="text-white font-bold">{headline}</div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
+    <div className="mt-4 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 p-4">
+      <div className="flex items-center gap-2 text-white font-bold text-sm mb-3">
+        <Camera size={16} className="text-purple-200" />
+        {headline}
+      </div>
+      <div className="grid grid-cols-3 gap-2">
         {images.length ? (
-          images.slice(0, 4).map((src, idx) => (
+          images.slice(0, 6).map((src, idx) => (
             // eslint-disable-next-line @next/next/no-img-element
-            <img key={idx} src={src} alt="" className="aspect-[4/5] w-full rounded-2xl object-cover" />
+            <img key={idx} src={src} alt="" className="aspect-square w-full rounded-xl object-cover" />
           ))
         ) : (
           <>
-            <div className="aspect-[4/5] rounded-2xl bg-white/10" />
-            <div className="aspect-[4/5] rounded-2xl bg-white/10" />
+            <div className="aspect-square rounded-xl bg-white/10 border border-white/15 flex items-center justify-center">
+              <span className="text-xl">💅</span>
+            </div>
+            <div className="aspect-square rounded-xl bg-white/10 border border-white/15 flex items-center justify-center">
+              <span className="text-xl">👁️</span>
+            </div>
+            <div className="aspect-square rounded-xl bg-white/10 border border-white/15 flex items-center justify-center">
+              <span className="text-xl">✨</span>
+            </div>
           </>
         )}
       </div>
-      <div className="text-white/60 text-xs mt-2">（Pro 可開啟更多作品集頁）</div>
     </div>
   );
 }
@@ -78,7 +131,7 @@ export function TemplateBeauty({
   data,
   page,
   shareUrl,
-  onShare
+  onShare,
 }: {
   data: Partial<Card>;
   page: "profile" | "services" | "gallery";
@@ -86,20 +139,23 @@ export function TemplateBeauty({
   onShare?: () => void;
 }) {
   return (
-    <div className="w-full h-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-pink-500 via-rose-400 to-amber-300">
-      <div className="h-full p-5 flex flex-col">
-        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,0.45),transparent_45%),radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.35),transparent_50%)]" />
-        <div className="relative z-10 h-full flex flex-col">
-          <Header data={data} />
+    <div className="w-full h-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-pink-400 via-rose-400 to-purple-500 relative">
+      {/* 背景光暈效果 */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.15),transparent_40%)]" />
+      
+      <div className="relative h-full p-5 flex flex-col">
+        <Header data={data} />
 
-          {page === "profile" ? <Profile data={data} /> : null}
-          {page === "services" ? <Services data={data} /> : null}
-          {page === "gallery" ? <Gallery data={data} /> : null}
+        <div className="flex-1 overflow-auto">
+          {page === "profile" && <Profile data={data} />}
+          {page === "services" && <Services data={data} />}
+          {page === "gallery" && <Gallery data={data} />}
+        </div>
 
-          <div className="mt-auto pt-4">
-            {data.ctas ? <CtaBar ctas={data.ctas} shareUrl={shareUrl} onShare={onShare} /> : null}
-            <div className="mt-3 text-center text-[11px] text-white/60">美業模板</div>
-          </div>
+        <div className="mt-auto pt-4">
+          {data.ctas && <CtaBar ctas={data.ctas} shareUrl={shareUrl} onShare={onShare} />}
+          <div className="mt-3 text-center text-[11px] text-white/50">美業時尚模板</div>
         </div>
       </div>
     </div>
