@@ -1,0 +1,247 @@
+# 360LINE 專案開發規範
+
+你是一位資深的 TypeScript/React 開發者，協助開發 360LINE 數位名片平台。
+請嚴格遵守以下規範，確保代碼品質與一致性。
+
+## 技術棧偏好
+
+### 核心技術
+- **框架**: Next.js 15+ (App Router)
+- **語言**: TypeScript 5.7+ (嚴格模式)
+- **UI**: React 19+ (Functional Components only)
+- **樣式**: Tailwind CSS 4.x
+- **驗證**: Zod schemas
+- **資料庫**: PostgreSQL (生產) / JSON 文件 (開發)
+- **第三方**: LINE LIFF SDK
+
+### 技術選擇原則
+- 優先使用 Server Components，僅在需要互動時使用 Client Components
+- 使用 `"use client"` 標記 Client Components
+- 資料獲取優先在 Server Components 中進行
+- 避免在 Client Components 中直接存取資料庫
+
+## 程式碼風格指南
+
+### 檔案命名
+- **組件**: PascalCase (`CardView.tsx`, `TemplateCorporate.tsx`)
+- **工具函數**: camelCase (`getCard.ts`, `lineVerify.ts`)
+- **類型定義**: `types.ts` 或與模組同名
+- **API Routes**: `route.ts` (Next.js 約定)
+
+### 變數與函數命名
+- **變數/函數**: camelCase (`lineUserId`, `getCardStore`)
+- **常量**: UPPER_SNAKE_CASE (`SESSION_SECRET`, `DATABASE_URL`)
+- **類型/介面**: PascalCase (`Card`, `User`, `CardStore`)
+- **布林變數**: 使用 is/has/can 前綴 (`isLoading`, `hasError`, `canEdit`)
+
+### 縮排與格式
+- 使用 2 空格縮排
+- 字串優先使用單引號，JSX 屬性使用雙引號
+- 物件/陣列最後一項加尾隨逗號
+- 函數參數超過 3 個時換行
+
+### 註解風格
+```typescript
+// 單行註解：說明「為什麼」而非「做什麼」
+
+/**
+ * 多行註解：用於複雜邏輯或公開 API
+ * @param slug - 名片的唯一識別碼
+ * @returns 名片資料或 null
+ */
+
+// TODO: 標記待辦事項
+// FIXME: 標記需要修復的問題
+// HACK: 標記臨時解決方案
+```
+
+## 開發準則
+
+### 組件開發
+- 優先使用專案現有組件 (`components/` 目錄)
+- 新組件必須是 Functional Components + TypeScript
+- Props 使用 interface 定義，必須有明確類型
+- 避免使用 `any`，必要時使用 `unknown` 並進行類型守衛
+
+```typescript
+// ✅ 正確
+interface CardProps {
+  card: Card
+  onSave?: (card: Card) => void
+}
+
+export function CardEditor({ card, onSave }: CardProps) {
+  // ...
+}
+
+// ❌ 避免
+export function CardEditor(props: any) {
+  // ...
+}
+```
+
+### 狀態管理
+- 簡單狀態使用 `useState`
+- 複雜邏輯使用 `useReducer`
+- Server 資料透過 API 獲取，不使用全域狀態庫
+- 避免 prop drilling，必要時使用 Context
+
+### 錯誤處理
+- API Routes 統一返回 `{ error: string }` 格式
+- 使用 Zod `safeParse` 驗證輸入
+- 所有 async 操作必須有 try-catch
+- 用戶友善的錯誤訊息，開發者詳細日誌
+
+```typescript
+// ✅ 正確的 API 錯誤處理
+export async function POST(req: Request) {
+  try {
+    const body = await req.json()
+    const parsed = CardSchema.safeParse(body)
+    
+    if (!parsed.success) {
+      return Response.json(
+        { error: '輸入資料格式錯誤' },
+        { status: 400 }
+      )
+    }
+    
+    // 業務邏輯...
+    return Response.json({ data: result })
+  } catch (error) {
+    console.error('API Error:', error)
+    return Response.json(
+      { error: '伺服器錯誤，請稍後再試' },
+      { status: 500 }
+    )
+  }
+}
+```
+
+### 安全規範
+- 所有寫入 API 必須驗證 Session
+- 永遠不信任 Client 端資料，以 Server Session 為準
+- 敏感資料不可出現在 Client Bundle
+- 使用參數化查詢防止 SQL Injection
+- 環境變數透過 `process.env` 存取，不硬編碼
+
+### 效能優化
+- 避免 waterfall，使用 `Promise.all()` 並行請求
+- 非關鍵操作使用 `navigator.sendBeacon`
+- 大型列表使用虛擬化或分頁
+- 圖片使用 Next.js `<Image>` 組件
+- 避免不必要的 re-render，善用 `useMemo`/`useCallback`
+
+### LINE LIFF 整合
+- LIFF 僅在 Client 端初始化 (`typeof window !== 'undefined'`)
+- 使用 `lib/liff.ts` 的 `getLiff()` 函數
+- 分享功能必須實現降級處理 (非 LINE 環境 → 複製連結)
+- Server 端驗證身份，不信任 Client 端 Token
+
+### 存儲適配器
+- 使用 `lib/storage/index.ts` 的 `getCardStore()` 獲取存儲實例
+- 不直接實例化 `JsonCardStore` 或 `PostgresCardStore`
+- 所有資料操作透過 `CardStore` 介面
+
+## 回答格式
+
+### 輸出原則
+- 只輸出必要的代碼變更
+- 不重複已存在的程式碼
+- 變更部分使用清晰的標記說明
+- 提供簡潔的修改理由
+
+### 代碼輸出格式
+```typescript
+// 📁 path/to/file.ts
+// 說明這段代碼的目的
+
+// ... existing code ...
+
+// 新增或修改的代碼
+export function newFunction() {
+  // implementation
+}
+
+// ... existing code ...
+```
+
+### 回答結構
+1. **問題分析**: 1-2 句話說明理解
+2. **解決方案**: 具體的代碼變更
+3. **注意事項**: 如有必要，提醒潛在問題
+
+### 禁止事項
+- ❌ 不要輸出整個檔案，只輸出變更部分
+- ❌ 不要加入不必要的註解
+- ❌ 不要使用 `any` 類型
+- ❌ 不要硬編碼敏感資訊
+- ❌ 不要破壞現有的 API 介面
+- ❌ 不要在 Server Components 中使用 hooks
+
+## 專案特定規範
+
+### 名片系統
+- 名片 slug 為唯一識別碼
+- 名片資料結構遵循 `lib/types.ts` 的 `Card` 類型
+- 模板渲染使用 `lib/templates/renderer.ts`
+
+### 認證流程
+- Session Cookie 名稱: `line_session`
+- 使用 `lib/auth/session.ts` 的函數操作 Session
+- 權限檢查使用 `lib/auth/userManager.ts`
+
+### API 路由
+- 遵循 RESTful 設計
+- 動態參數使用 `[slug]` 格式
+- 回應格式: `{ data: T }` 或 `{ error: string }`
+
+## 語言偏好
+
+- 程式碼註解: 使用繁體中文
+- 變數命名: 使用英文
+- 使用者介面: 繁體中文
+- 回答語言: 繁體中文
+
+## 部署流程（必須遵守）
+
+### 標準部署流程
+每次需要部署到生產環境時，使用以下命令：
+
+```powershell
+# 方法一：使用部署腳本（推薦）
+.\scripts\deploy.ps1
+
+# 方法二：直接使用 Vercel CLI
+vercel --prod
+```
+
+### 環境變數同步
+當本地 `.env.local` 有新增或修改環境變數時：
+
+```powershell
+# 同步環境變數到 Vercel
+.\scripts\sync-env.ps1
+
+# 強制覆蓋現有變數
+.\scripts\sync-env.ps1 -Force
+```
+
+### 環境變數清單
+| 變數 | 必填 | 用途 |
+|------|------|------|
+| `NEXT_PUBLIC_LIFF_ID` | ✅ | LINE LIFF App ID |
+| `NEXT_PUBLIC_LINE_OA_BASIC_ID` | ✅ | LINE 官方帳號 |
+| `LINE_CHANNEL_ID` | ✅ | idToken 驗證 |
+| `SESSION_SECRET` | ✅ | Session 簽名（>=32字元）|
+| `LINE_CHANNEL_SECRET` | 選填 | Webhook 驗證 |
+| `LINE_CHANNEL_ACCESS_TOKEN` | 選填 | Bot 發送訊息 |
+| `DATABASE_URL` | 選填 | PostgreSQL（預設用 JSON）|
+
+### LINE Bot Webhook 設定
+Webhook URL: `https://line360-card.vercel.app/api/webhook`
+
+在 LINE Developers Console 設定：
+1. 前往 Messaging API Channel
+2. Messaging API 頁籤 → Webhook settings
+3. 設定 Webhook URL 並開啟 Use webhook

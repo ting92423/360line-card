@@ -1,0 +1,28 @@
+﻿{
+    "mcpServers":  {
+                       "skills-manager":  {
+                                              "args":  [
+                                                           "H:/agent-skills-main/skills_manager.py"
+                                                       ],
+                                              "command":  "python"
+                                          },
+                       "local-skills-mcp":  {
+                                                "args":  [
+                                                             "-y",
+                                                             "skills-mcp",
+                                                             "-s",
+                                                             "H:/360LINE/skills"
+                                                         ],
+                                                "command":  "npx"
+                                            },
+                       "skills-mcp":  {
+                                          "args":  [
+                                                       "-y",
+                                                       "skills-mcp",
+                                                       "-s",
+                                                       "C:/Users/Vlad Ting/.claude/skills"
+                                                   ],
+                                          "command":  "npx"
+                                      }
+                   }
+}
