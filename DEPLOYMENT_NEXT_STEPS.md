@@ -22,14 +22,14 @@
 #### 1.1 LINE Channel Secret
 ```
 Name: LINE_CHANNEL_SECRET
-Value: a490ffbc1cf3ff10e193045c3c7fa24b
+Value: 從 LINE Developers Console 取得
 Environment: Production, Preview, Development
 ```
 
 #### 1.2 LINE Channel Access Token
 ```
 Name: LINE_CHANNEL_ACCESS_TOKEN
-Value: exIS1hKqFGtk4R8agMs9acHUZA91eszqNMawoP0N1mwrmFU9dlYokAsyD/jeNNQCL3LL41gsrp4qHl8iW8znmQ+bimNpkYcOrFZVAO5d5VGVKmpCLFWoYHH8KGDpLw2aRsBndeT8rl/mns2mk6yGQQdB04t89/1O/w1cDnyilFU=
+Value: 從 LINE Developers Console 取得
 Environment: Production, Preview, Development
 ```
 
@@ -43,7 +43,7 @@ Environment: Production, Preview, Development
 https://developers.line.biz/console/
 
 #### 2.2 進入您的 Messaging API Channel
-選擇 Channel ID: `2008993307`
+選擇您的 Channel
 
 #### 2.3 設定 Webhook URL
 1. 前往「Messaging API」分頁

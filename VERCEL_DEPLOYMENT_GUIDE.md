@@ -196,4 +196,73 @@ https://line360-card.vercel.app
 
 ---
 
+## 🤖 CLI 自動部署（推薦）
+
+### 快速部署
+
+```powershell
+# 一鍵部署到生產環境
+.\scripts\deploy.ps1
+
+# 部署到預覽環境（不影響生產）
+.\scripts\deploy.ps1 -Preview
+```
+
+### 環境變數同步
+
+當本地 `.env.local` 有更新時：
+
+```powershell
+# 同步到 Vercel
+.\scripts\sync-env.ps1
+
+# 強制覆蓋
+.\scripts\sync-env.ps1 -Force
+```
+
+### 直接使用 Vercel CLI
+
+```powershell
+# 查看環境變數
+vercel env ls
+
+# 部署生產環境
+vercel --prod
+
+# 查看部署日誌
+vercel logs https://line360-card.vercel.app
+```
+
+---
+
+## 📋 環境變數完整清單
+
+| 變數名 | 必填 | 說明 | 取得位置 |
+|--------|------|------|----------|
+| `NEXT_PUBLIC_LIFF_ID` | ✅ | LIFF App ID | LINE Login Channel > LIFF |
+| `NEXT_PUBLIC_LINE_OA_BASIC_ID` | ✅ | 官方帳號 | Messaging API > Basic ID |
+| `LINE_CHANNEL_ID` | ✅ | Channel ID | Messaging API > Basic settings |
+| `SESSION_SECRET` | ✅ | 簽名密鑰 (>=32字元) | `generate-secret.ps1` |
+| `LINE_CHANNEL_SECRET` | 選填 | Webhook 驗證 | Messaging API > Basic settings |
+| `LINE_CHANNEL_ACCESS_TOKEN` | 選填 | Bot 發訊息 | Messaging API > Channel access token |
+| `NEXT_PUBLIC_APP_ORIGIN` | 選填 | 應用網址 | 您的 Vercel URL |
+| `DATABASE_URL` | 選填 | PostgreSQL | 您的資料庫連線字串 |
+
+---
+
+## 🔗 LINE Bot Webhook 設定
+
+**Webhook URL**: `https://line360-card.vercel.app/api/webhook`
+
+### 設定步驟
+1. 前往 [LINE Developers Console](https://developers.line.biz/console/)
+2. 選擇您的 **Messaging API Channel**
+3. 進入 **Messaging API** 頁籤
+4. 找到 **Webhook settings**
+5. 設定 **Webhook URL**: `https://line360-card.vercel.app/api/webhook`
+6. 開啟 **Use webhook**: ✅
+7. 點擊 **Verify** 測試連線
+
+---
+
 **祝部署順利！** 🚀

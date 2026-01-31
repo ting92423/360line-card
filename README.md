@@ -1,108 +1,171 @@
-# 360LINE 對標：LINE LIFF 電子名片（MVP）
+# DUO ID - LINE 智慧型電子名片平台
 
-這是一個 **深度整合 LINE 生態（LIFF）**的電子名片 MVP，包含：
+> 一句話介紹：整合 LINE LIFF 的電子名片平台，讓用戶在 LINE 內建立、編輯、分享精美數位名片。
 
-- 名片展示頁：`/c/[slug]`
-- 一鍵加好友（導向官方帳號）
-- 一鍵分享（`liff.shareTargetPicker` + Flex Message）
-- vCard 下載（`/api/vcard/[slug]` → `.vcf`）
-- 後台（LIFF）：`/admin` 取得 LINE profile，自動帶入資料並儲存
+## ✨ 功能特色
 
-> 注意：本 MVP 用 `data/cards.json` 做簡易儲存（適合本機 Demo）。正式上線建議改為 PostgreSQL / Redis，並加上 **LINE Login + 後端驗證 access token**。
+- 🎨 **6 款精美名片風格** - 現代商務、專業簡約、時尚美業等
+- 📱 **LINE 深度整合** - LIFF 登入、分享到聊天、加好友
+- 💳 **vCard 下載** - 一鍵儲存到手機通訊錄
+- 🔒 **付費牆系統** - 試用期 7 天、方案限制
+- 📊 **使用分析** - 追蹤名片瀏覽、分享等事件
 
-## 本機啟動
+## 🚀 快速啟動
 
-1) 安裝依賴
+### 環境需求
+- Node.js 18+
+- npm 或 yarn
 
-```bash
+### 安裝步驟
+
+```powershell
+# 1. 安裝依賴
 npm install
-```
 
-2) 設定環境變數
+# 2. 複製環境變數範本
+copy .env.example .env.local
 
-把 `env.example` 複製成 `.env.local`，並填入你的 LIFF ID / OA Basic ID：
+# 3. 編輯 .env.local，填入以下必要變數：
+# - NEXT_PUBLIC_LIFF_ID
+# - LINE_CHANNEL_SECRET
+# - LINE_CHANNEL_ACCESS_TOKEN
+# - SESSION_SECRET（至少 32 字元）
 
-```bash
-copy env.example .env.local
-```
-
-你至少需要填：
-
-- `NEXT_PUBLIC_LIFF_ID`
-- `NEXT_PUBLIC_LINE_OA_BASIC_ID`
-- `LINE_CHANNEL_ID`（用於 server 驗證 idToken）
-- `SESSION_SECRET`（簽名 session cookie）
-
-3) 開發模式
-
-```bash
+# 4. 啟動開發伺服器
 npm run dev
+
+# 5. 開啟瀏覽器
+# http://localhost:3000
 ```
 
-打開：
+### 生產部署
 
-- `http://localhost:3000/` 首頁
-- `http://localhost:3000/c/demo` 示範名片
-- `http://localhost:3000/admin` 後台（需要在 LIFF 環境）
+```powershell
+# 建置
+npm run build
 
-## LINE Developers / LIFF 必做設定
+# 啟動
+npm run start
+```
 
-### 1) 建立 Channel + LIFF App
+## 📁 專案結構
 
-在 LINE Developers 建立：
+```
+360LINE/
+├── app/                          # Next.js App Router
+│   ├── api/                      # API 路由
+│   │   ├── analytics/            # 分析 API
+│   │   ├── auth/                 # 認證 API
+│   │   │   ├── logout/           # 登出
+│   │   │   └── verify/           # 驗證 LINE ID Token
+│   │   ├── cards/[slug]/         # 名片 CRUD
+│   │   ├── events/               # 事件追蹤
+│   │   ├── og/                   # Open Graph 圖片
+│   │   ├── users/me/             # 用戶資訊
+│   │   ├── vcard/[slug]/         # vCard 下載
+│   │   └── webhook/              # LINE Bot Webhook
+│   ├── c/[slug]/                 # 名片展示頁
+│   ├── editor/                   # LIFF 名片編輯器
+│   ├── templates/                # 模板瀏覽頁
+│   ├── upgrade/                  # 升級頁面
+│   ├── admin/                    # 管理後台
+│   ├── layout.tsx                # 全域佈局
+│   ├── page.tsx                  # 首頁
+│   ├── not-found.tsx             # 404 頁面
+│   └── error.tsx                 # 錯誤頁面
+├── components/                   # React 組件
+│   ├── card-templates/           # 名片模板組件
+│   │   ├── v2/                   # V2 模板
+│   │   └── cta/                  # CTA 組件
+│   └── CardView.tsx              # 名片預覽組件
+├── lib/                          # 工具函式庫
+│   ├── auth/                     # 認證相關
+│   │   ├── lineVerify.ts         # LINE ID Token 驗證
+│   │   ├── session.ts            # Session 管理
+│   │   └── userManager.ts        # 用戶權限管理
+│   ├── storage/                  # 資料存儲
+│   │   ├── adapter.ts            # 存儲適配器介面
+│   │   ├── jsonStore.ts          # JSON 文件存儲
+│   │   └── postgresStore.ts      # PostgreSQL 存儲
+│   ├── templates/                # 模板系統
+│   ├── liff.ts                   # LIFF SDK 封裝
+│   ├── types.ts                  # TypeScript 類型
+│   ├── vcard.ts                  # vCard 生成
+│   ├── events.ts                 # 事件定義
+│   └── env.ts                    # 環境變數驗證
+├── data/                         # 資料目錄
+│   └── cards.json                # JSON 存儲（開發用）
+├── public/                       # 靜態資源
+├── .env.example                  # 環境變數範本
+├── package.json
+└── README.md
+```
 
-- **Messaging API Channel**（綁定你的官方帳號）
-- 在同一 Provider 下建立 **LIFF app**
+## 🔧 環境變數
 
-### 2) LIFF Endpoint URL
+| 變數名稱 | 必填 | 說明 |
+|---------|------|------|
+| `NEXT_PUBLIC_LIFF_ID` | ✅ | LINE LIFF App ID |
+| `LINE_CHANNEL_SECRET` | ✅ | LINE Channel Secret（Webhook 簽名驗證） |
+| `LINE_CHANNEL_ACCESS_TOKEN` | ✅ | LINE Channel Access Token（回覆訊息） |
+| `SESSION_SECRET` | ✅ | Session 簽名密鑰（至少 32 字元） |
+| `LINE_CHANNEL_ID` | ⚪ | LINE Channel ID（ID Token 驗證） |
+| `DATABASE_URL` | ⚪ | PostgreSQL 連線字串（可選） |
+| `NEXT_PUBLIC_APP_ORIGIN` | ⚪ | 應用網址 |
 
-把 LIFF Endpoint 指向你的名片頁（或後台頁）：
+## 📱 LINE Developers 設定
 
-- 例如：`https://your-domain.com/admin`
-- 或：`https://your-domain.com/c/demo`
+### 1. 建立 Messaging API Channel
+- 前往 [LINE Developers Console](https://developers.line.biz/console/)
+- 建立 Provider 和 Messaging API Channel
+- 記錄 Channel Secret 和 Channel Access Token
 
-### 3) 加好友提示（bot_prompt）
+### 2. 設定 Webhook
+- Webhook URL: `https://your-domain.com/api/webhook`
+- 開啟「Use webhook」
+- 關閉「Auto-reply messages」
 
-要達成「授權時順便跳出加入好友」：
+### 3. 建立 LIFF App
+- 在同一 Provider 下建立 LIFF App
+- Size: Full
+- Endpoint URL: `https://your-domain.com/editor`
+- Scope: profile, openid
+- Bot link feature: On (Normal)
 
-- 在 LIFF 設定開啟 **Add friend option / bot_prompt**（通常設為 `normal`）
+## 🛣️ API 端點
 
-### 4) ShareTargetPicker
+| 方法 | 路徑 | 說明 |
+|------|------|------|
+| GET | `/api/cards/[slug]` | 取得名片資料 |
+| PUT | `/api/cards/[slug]` | 建立/更新名片（需認證） |
+| GET | `/api/vcard/[slug]` | 下載 vCard 檔案 |
+| POST | `/api/events` | 追蹤事件 |
+| POST | `/api/auth/verify` | 驗證 LINE ID Token |
+| POST | `/api/auth/logout` | 登出 |
+| GET | `/api/users/me` | 取得當前用戶資訊 |
+| POST | `/api/webhook` | LINE Bot Webhook |
 
-要使用 `liff.shareTargetPicker()`：
+## 🔐 安全機制
 
-- LIFF 必須允許 share（並在 LINE 版本/裝置上測試）
+- **Webhook 簽名驗證** - 使用 HMAC-SHA256 驗證 LINE Webhook 請求
+- **Session Cookie** - HttpOnly、Secure、SameSite 設定
+- **資料驗證** - 使用 Zod Schema 驗證所有輸入
+- **SQL 注入防護** - 參數化查詢
 
-## 商用版：Auth / 權限
+## 📝 開發指令
 
-本專案已加入「商用級」基礎權限：
+```powershell
+npm run dev          # 開發伺服器
+npm run build        # 生產建置
+npm run start        # 生產伺服器
+npm run lint         # 程式碼檢查
+npm run smoke:editor # 編輯器測試
+```
 
-- `/admin` 會先取得 `liff.getIDToken()` → `POST /api/auth/verify`
-- server 端呼叫 LINE `oauth2/v2.1/verify` 驗 idToken
-- 驗過後寫入 `HttpOnly` 的 `line_session` cookie
-- `PUT /api/cards/[slug]` 需要 session（沒有就是 `401`）
+## 📄 授權
 
-### 必填環境變數
+MIT License
 
-- `LINE_CHANNEL_ID`
-- `SESSION_SECRET`
+---
 
-> 注意：若你用的是 Messaging API channel / LIFF channel 組合，請確認 `LINE_CHANNEL_ID` 對應到你用來簽發 idToken 的那個 channel。
-
-## 路由與 API
-
-- 名片頁：`/c/[slug]`
-- 讀取名片：`GET /api/cards/[slug]`
-- 儲存名片：`PUT /api/cards/[slug]`
-- 下載通訊錄：`GET /api/vcard/[slug]`（回傳 `.vcf`）
-- 事件追蹤：`POST /api/events`
-- 登出：`POST /api/auth/logout`
-
-## 下一步（你要做成商用版時）
-
-- 後端：改用 PostgreSQL（並加上 migrations）
-- Auth：LINE Login（或 LIFF access token）→ 後端驗證 `ownerLineUserId`
-- 分析：名片 view / 分享 / 加好友 click（GA4 或自建 event 表）
-- Flex：更漂亮的 Bubble / Carousel（可支援多模板）
-- 分享裂變：名片內嵌「一鍵加入官方帳號」與「一鍵預約/表單」CTA
-
+**DUO ID** - 讓每一次交流都留下專業印象 🎯

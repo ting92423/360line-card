@@ -19,6 +19,15 @@ dist/
 .env
 .env*.local
 .env.production
+.env.vercel
+.env.vercel-check
+
+# 敏感/臨時文件
+liff_temp.txt
+liff_value.txt
+
+# 個人照片（不應提交到公開倉庫）
+pic/
 
 # Vercel
 .vercel

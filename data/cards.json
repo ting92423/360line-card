@@ -2,21 +2,70 @@
   "cards": {
     "demo": {
       "slug": "demo",
-      "template": "default",
-      "displayName": "示範使用者",
-      "title": "業務經理",
-      "company": "360LINE Demo Co.",
-      "avatarUrl": "https://profile.line-scdn.net/0hXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "template": "style5",
+      "displayName": "王小明",
+      "title": "資深業務顧問",
+      "company": "DUO ID 數位名片",
+      "avatarUrl": "/pic/LINE_ALBUM_專業形象照_251215_1.jpg",
       "phone": "+886912345678",
-      "email": "demo@example.com",
-      "website": "https://example.com",
-      "lineOaBasicId": "",
+      "email": "demo@duoid.tw",
+      "website": "https://line360-card.vercel.app",
+      "lineOaBasicId": "@duoid",
       "social": {
-        "instagram": "https://www.instagram.com/",
-        "facebook": "https://www.facebook.com/",
-        "youtube": "https://www.youtube.com/"
-      }
+        "instagram": "https://www.instagram.com/duoid_tw",
+        "facebook": "https://www.facebook.com/duoid",
+        "youtube": "https://www.youtube.com/@duoid",
+        "linkedin": "https://www.linkedin.com/company/duoid"
+      },
+      "pages": {
+        "about": {
+          "bio": "擁有超過 10 年業務銷售與客戶服務經驗，專精於數位行銷與品牌經營。致力於協助企業與個人打造專業的數位形象，透過 LINE 數位名片讓每一次交流都更有價值。\n\n我相信「真誠」是建立長久合作關係的基礎，期待能為您提供最專業的服務！",
+          "tagline": "讓每一次交流都更有價值",
+          "tags": ["數位名片", "LINE 行銷", "品牌經營", "客戶服務", "業務銷售"],
+          "experiences": [
+            { "title": "DUO ID 數位名片", "description": "創辦人 / 2023 - 現在" },
+            { "title": "某知名科技公司", "description": "資深業務經理 / 2018 - 2023" },
+            { "title": "國際貿易公司", "description": "業務代表 / 2013 - 2018" }
+          ],
+          "motto": "用心服務，創造價值",
+          "address": "台北市信義區信義路五段7號"
+        },
+        "services": {
+          "headline": "專業服務項目",
+          "items": [
+            { "name": "數位名片設計", "description": "量身打造專屬您的 LINE 數位名片，提升專業形象", "price": "NT$2,000 起" },
+            { "name": "品牌行銷顧問", "description": "協助您規劃完整的數位行銷策略，提升品牌能見度", "price": "NT$10,000/月" },
+            { "name": "LINE 官方帳號設定", "description": "從零開始建立您的 LINE 官方帳號與自動化流程", "price": "NT$5,000 起" },
+            { "name": "一對一諮詢", "description": "針對您的需求提供客製化的解決方案", "price": "NT$2,000/小時" }
+          ],
+          "bookingUrl": "https://line.me/R/ti/p/@duoid",
+          "faqs": [
+            { "question": "數位名片可以放幾頁內容？", "answer": "免費版可建立 1 頁基本名片，專業版可使用 5 頁完整內容（名片、關於我、服務項目、作品集、公司介紹）。" },
+            { "question": "可以更換模板嗎？", "answer": "可以！您可以隨時在編輯器中更換模板風格，免費版提供 2 款模板，專業版可使用全部 6 款精美模板。" }
+          ]
+        },
+        "portfolio": {
+          "headline": "精選作品",
+          "images": [
+            "/pic/LINE_ALBUM_專業形象照_251215_2.jpg",
+            "/pic/LINE_ALBUM_專業形象照_251215_3.jpg",
+            "/pic/LINE_ALBUM_專業形象照_251215_4.jpg",
+            "/pic/LINE_ALBUM_專業形象照_251215_5.jpg"
+          ],
+          "testimonials": [
+            { "name": "陳小姐", "content": "數位名片讓我在商務場合更顯專業，客戶對我的印象也變好了！強力推薦給所有業務人員。" },
+            { "name": "林先生", "content": "以前發紙本名片常常被丟掉，現在用數位名片，客戶可以直接存到手機，聯繫率大幅提升！" }
+          ]
+        },
+        "company": {
+          "name": "DUO ID 數位名片",
+          "description": "DUO ID 是台灣領先的 LINE 數位名片服務商，致力於幫助企業與個人打造專業的數位形象。\n\n我們提供多款精美模板、AI 智能填寫、詳細統計分析等功能，讓您的名片不只是一張聯絡資訊，更是您專業形象的延伸。",
+          "address": "台北市信義區信義路五段7號 101大樓",
+          "businessHours": "週一至週五 09:00 - 18:00\n週六、日及國定假日公休"
+        }
+      },
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-31T00:00:00.000Z"
     }
   }
 }
-

@@ -1,4 +1,4 @@
-const ORIGIN = process.env.APP_ORIGIN || "https://line360-card.vercel.app";
+const ORIGIN = process.env.NEXT_PUBLIC_APP_ORIGIN || "https://line360-card.vercel.app";
 
 function assert(condition, message) {
   if (!condition) {
