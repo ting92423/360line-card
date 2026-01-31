@@ -237,17 +237,26 @@ export async function upgradeUserPlan(
 export async function logUserActivity(
   lineUserId: string,
   action: string,
-  details?: Record<string, any>
+  details?: Record<string, any>,
+  ipAddress?: string,
+  userAgent?: string
 ): Promise<void> {
   const store = getCardStore();
   
   // 如果使用 PostgreSQL，記錄到資料庫
-  if (store.constructor.name === 'PostgresCardStore') {
-    // TODO: 實現活動日誌記錄
+  if ('logUserActivity' in store && typeof (store as any).logUserActivity === 'function') {
+    try {
+      await (store as any).logUserActivity(lineUserId, action, details, ipAddress, userAgent);
+    } catch (error) {
+      // 日誌記錄失敗不應影響主流程
+      console.error('[logUserActivity] Database error:', error);
+    }
   }
 
-  // 開發階段：輸出到 console
-  console.log(`[User Activity] ${lineUserId}: ${action}`, details);
+  // 開發環境額外輸出到 console
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[User Activity] ${lineUserId}: ${action}`, details);
+  }
 }
 
 /**

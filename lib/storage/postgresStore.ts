@@ -396,5 +396,63 @@ export class PostgresCardStore implements CardStore {
       topLocations,
     };
   }
+
+  // ========== 用戶活動日誌方法 ==========
+
+  /**
+   * 記錄用戶活動到資料庫
+   */
+  async logUserActivity(
+    lineUserId: string,
+    action: string,
+    details?: Record<string, any>,
+    ipAddress?: string,
+    userAgent?: string
+  ): Promise<void> {
+    const pool = await getPool();
+    await ensureSchema(pool.query.bind(pool));
+
+    await pool.query(
+      `INSERT INTO user_activity_logs (line_user_id, action, details, ip_address, user_agent, created_at)
+       VALUES ($1, $2, $3::jsonb, $4, $5, NOW())`,
+      [
+        lineUserId,
+        action,
+        details ? JSON.stringify(details) : null,
+        ipAddress || null,
+        userAgent || null,
+      ]
+    );
+  }
+
+  /**
+   * 獲取用戶活動日誌
+   */
+  async getUserActivityLogs(
+    lineUserId: string,
+    limit: number = 50
+  ): Promise<Array<{
+    action: string;
+    details: Record<string, any> | null;
+    createdAt: Date;
+  }>> {
+    const pool = await getPool();
+    await ensureSchema(pool.query.bind(pool));
+
+    const res = await pool.query(
+      `SELECT action, details, created_at 
+       FROM user_activity_logs 
+       WHERE line_user_id = $1 
+       ORDER BY created_at DESC 
+       LIMIT $2`,
+      [lineUserId, limit]
+    );
+
+    return res.rows.map((row) => ({
+      action: row.action,
+      details: row.details,
+      createdAt: new Date(row.created_at),
+    }));
+  }
 }
 

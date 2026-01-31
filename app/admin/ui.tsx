@@ -30,11 +30,24 @@ interface UserPermissions {
   daysRemaining?: number;
 }
 
+interface CardAnalytics {
+  slug: string;
+  totalViews: number;
+  uniqueVisitors: number;
+  actions: Record<string, number>;
+  viewsByDate: Array<{ date: string; views: number }>;
+  topLocations: Array<{ country: string; city: string; views: number }>;
+  message?: string;
+}
+
 export function AdminClient() {
   const [status, setStatus] = useState<string>("");
   const [lineUserId, setLineUserId] = useState<string>("");
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const [userPermissions, setUserPermissions] = useState<UserPermissions | null>(null);
+  const [analytics, setAnalytics] = useState<CardAnalytics | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState<boolean>(false);
+  const [idToken, setIdToken] = useState<string>("");
   const [draft, setDraft] = useState<Draft>({
     template: "default",
     title: "",
@@ -78,12 +91,13 @@ export function AdminClient() {
 
       setStatus("驗證身分（server）...");
       try {
-        const idToken = liff.getIDToken();
-        if (!idToken) throw new Error("no_id_token");
+        const token = liff.getIDToken();
+        if (!token) throw new Error("no_id_token");
+        setIdToken(token);
         await fetchJson<{ ok: true; userId: string }>("/api/auth/verify", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ idToken })
+          body: JSON.stringify({ idToken: token })
         });
         setIsVerified(true);
 
@@ -111,11 +125,33 @@ export function AdminClient() {
         const existing = await fetchJson<Card>(`/api/cards/${encodeURIComponent(profile.userId)}`);
         setDraft(existing);
         setStatus("已載入既有名片");
+        
+        // 加載統計數據
+        const token = liff.getIDToken();
+        if (token) {
+          loadAnalytics(profile.userId, token);
+        }
       } catch {
         setStatus("尚未建立名片，已帶入 LINE profile（可直接儲存）");
       }
     })().catch(() => setStatus("LIFF 初始化失敗（請確認 LIFF 設定、Domain、以及 HTTPS）"));
   }, []);
+
+  // 加載統計數據
+  async function loadAnalytics(cardSlug: string, token: string) {
+    setAnalyticsLoading(true);
+    try {
+      const data = await fetchJson<CardAnalytics>(`/api/analytics?slug=${encodeURIComponent(cardSlug)}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      setAnalytics(data);
+    } catch (e) {
+      // 統計加載失敗不影響主功能
+      console.warn("Failed to load analytics:", e);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  }
 
   async function onSave() {
     if (!isVerified) {
@@ -403,6 +439,160 @@ export function AdminClient() {
         />
       </div>
       </div>
+
+      {/* 統計儀表板 */}
+      {isVerified && slug && (
+        <div className="panel" style={{ marginTop: 24 }}>
+          <div style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "space-between",
+            marginBottom: 20 
+          }}>
+            <div style={{ fontWeight: 700, fontSize: 18 }}>📊 名片統計</div>
+            <button
+              className="btn"
+              onClick={() => idToken && loadAnalytics(slug, idToken)}
+              disabled={analyticsLoading}
+              style={{ fontSize: 13, padding: "8px 16px" }}
+            >
+              {analyticsLoading ? "載入中..." : "🔄 刷新"}
+            </button>
+          </div>
+
+          {analyticsLoading && !analytics ? (
+            <div style={{ textAlign: "center", padding: 40, color: "var(--muted)" }}>
+              載入統計資料中...
+            </div>
+          ) : analytics ? (
+            <>
+              {/* 數字概覽卡片 */}
+              <div style={{ 
+                display: "grid", 
+                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", 
+                gap: 16,
+                marginBottom: 24 
+              }}>
+                <StatCard 
+                  label="總瀏覽數" 
+                  value={analytics.totalViews} 
+                  icon="👁️" 
+                  color="#6BCF7E" 
+                />
+                <StatCard 
+                  label="獨立訪客" 
+                  value={analytics.uniqueVisitors} 
+                  icon="👤" 
+                  color="#5B9BD5" 
+                />
+                <StatCard 
+                  label="電話點擊" 
+                  value={analytics.actions?.click_phone || 0} 
+                  icon="📞" 
+                  color="#FF6B35" 
+                />
+                <StatCard 
+                  label="vCard 下載" 
+                  value={analytics.actions?.download_vcard || 0} 
+                  icon="💾" 
+                  color="#9B59B6" 
+                />
+              </div>
+
+              {/* 操作統計 */}
+              {Object.keys(analytics.actions || {}).length > 0 && (
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 12, color: "var(--muted)" }}>
+                    互動行為分布
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {Object.entries(analytics.actions)
+                      .sort(([, a], [, b]) => b - a)
+                      .map(([action, count]) => (
+                        <ActionBar key={action} action={action} count={count} total={analytics.totalViews || 1} />
+                      ))
+                    }
+                  </div>
+                </div>
+              )}
+
+              {/* 近期瀏覽趨勢 */}
+              {analytics.viewsByDate && analytics.viewsByDate.length > 0 && (
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 12, color: "var(--muted)" }}>
+                    近期瀏覽趨勢（最近 7 天）
+                  </div>
+                  <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 80 }}>
+                    {analytics.viewsByDate.slice(0, 7).reverse().map((item, idx) => {
+                      const maxViews = Math.max(...analytics.viewsByDate.slice(0, 7).map(d => d.views), 1);
+                      const height = (item.views / maxViews) * 60 + 20;
+                      return (
+                        <div key={idx} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                          <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4 }}>{item.views}</div>
+                          <div 
+                            style={{ 
+                              width: "100%", 
+                              height, 
+                              background: "linear-gradient(180deg, #6BCF7E 0%, #4CAF50 100%)",
+                              borderRadius: 4 
+                            }} 
+                          />
+                          <div style={{ fontSize: 10, color: "var(--muted)", marginTop: 4 }}>
+                            {item.date.slice(5)}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 熱門地區 */}
+              {analytics.topLocations && analytics.topLocations.length > 0 && 
+               analytics.topLocations[0].country !== "Unknown" && (
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 12, color: "var(--muted)" }}>
+                    熱門地區
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    {analytics.topLocations.slice(0, 5).map((loc, idx) => (
+                      <div 
+                        key={idx}
+                        style={{
+                          padding: "8px 12px",
+                          background: "rgba(255,255,255,0.05)",
+                          borderRadius: 8,
+                          fontSize: 13
+                        }}
+                      >
+                        📍 {loc.city}, {loc.country} ({loc.views})
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 無數據提示 */}
+              {analytics.message && (
+                <div style={{ 
+                  textAlign: "center", 
+                  padding: 20, 
+                  color: "var(--muted)",
+                  fontSize: 13,
+                  background: "rgba(255,255,255,0.03)",
+                  borderRadius: 8
+                }}>
+                  💡 {analytics.message}
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={{ textAlign: "center", padding: 40, color: "var(--muted)" }}>
+              尚無統計資料，分享您的名片後即可在此查看數據！
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -434,6 +624,78 @@ function Field({
         }}
       />
     </label>
+  );
+}
+
+// 統計卡片組件
+function StatCard({ 
+  label, 
+  value, 
+  icon, 
+  color 
+}: { 
+  label: string; 
+  value: number; 
+  icon: string; 
+  color: string; 
+}) {
+  return (
+    <div style={{
+      padding: 16,
+      background: "rgba(255,255,255,0.03)",
+      borderRadius: 12,
+      border: "1px solid rgba(255,255,255,0.05)"
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        <span style={{ fontSize: 20 }}>{icon}</span>
+        <span style={{ fontSize: 12, color: "var(--muted)" }}>{label}</span>
+      </div>
+      <div style={{ fontSize: 28, fontWeight: 700, color }}>{value.toLocaleString()}</div>
+    </div>
+  );
+}
+
+// 操作統計條形圖
+function ActionBar({ 
+  action, 
+  count, 
+  total 
+}: { 
+  action: string; 
+  count: number; 
+  total: number; 
+}) {
+  const percentage = Math.round((count / total) * 100);
+  const actionLabels: Record<string, string> = {
+    view: "👁️ 瀏覽",
+    click_phone: "📞 電話點擊",
+    click_email: "📧 Email 點擊",
+    click_website: "🌐 網站點擊",
+    download_vcard: "💾 下載名片",
+    add_friend: "➕ 加好友",
+    share: "🔗 分享"
+  };
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{ width: 100, fontSize: 13, flexShrink: 0 }}>
+        {actionLabels[action] || action}
+      </div>
+      <div style={{ flex: 1, height: 24, background: "rgba(255,255,255,0.05)", borderRadius: 4, overflow: "hidden" }}>
+        <div 
+          style={{
+            width: `${percentage}%`,
+            height: "100%",
+            background: "linear-gradient(90deg, #6BCF7E 0%, #4CAF50 100%)",
+            borderRadius: 4,
+            minWidth: count > 0 ? 4 : 0
+          }}
+        />
+      </div>
+      <div style={{ width: 60, textAlign: "right", fontSize: 13, color: "var(--muted)" }}>
+        {count} ({percentage}%)
+      </div>
+    </div>
   );
 }
 
