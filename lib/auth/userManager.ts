@@ -127,15 +127,18 @@ export function checkUserPermissions(user: User | null): UserPermissions {
     };
   }
 
-  // 免費用戶
+  // 免費用戶（試用期已過期且未付費）
+  // 只能查看，不能編輯或新建
   return {
-    canEdit: true,
-    canCreateNew: true,
-    canUseTemplate: (templateId) => user.allowedTemplates.includes(templateId),
+    canEdit: false,
+    canCreateNew: false,
+    canUseTemplate: () => false,
     canViewAnalytics: false,
-    maxCards: 1,
+    maxCards: 0,
     plan: 'free',
-    status: 'active'
+    status: 'expired',
+    message: '試用期已結束，請升級以繼續使用',
+    daysRemaining: 0
   };
 }
 
@@ -145,6 +148,12 @@ export function checkUserPermissions(user: User | null): UserPermissions {
 export async function createUser(lineUserId: string, displayName: string, pictureUrl?: string): Promise<User> {
   const store = getCardStore();
   
+  // 如果使用 PostgreSQL，存入資料庫
+  if ('createUser' in store && typeof (store as any).createUser === 'function') {
+    return await (store as any).createUser(lineUserId, displayName, pictureUrl);
+  }
+
+  // JSON Store fallback
   const user: User = {
     lineUserId,
     displayName,
@@ -158,11 +167,6 @@ export async function createUser(lineUserId: string, displayName: string, pictur
     updatedAt: new Date()
   };
 
-  // 如果使用 PostgreSQL，存入資料庫
-  if (store.constructor.name === 'PostgresCardStore') {
-    // TODO: 實現 PostgreSQL 用戶建立
-  }
-
   return user;
 }
 
@@ -173,12 +177,37 @@ export async function getUser(lineUserId: string): Promise<User | null> {
   const store = getCardStore();
   
   // 如果使用 PostgreSQL，從資料庫取得
-  if (store.constructor.name === 'PostgresCardStore') {
-    // TODO: 實現 PostgreSQL 用戶查詢
+  if ('getUser' in store && typeof (store as any).getUser === 'function') {
+    return await (store as any).getUser(lineUserId);
   }
 
-  // 暫時回傳 null（之後會從資料庫取得）
+  // JSON Store fallback - 無用戶系統
   return null;
+}
+
+/**
+ * 取得或建立用戶（自動試用）
+ */
+export async function getOrCreateUser(lineUserId: string, displayName: string, pictureUrl?: string): Promise<User> {
+  let user = await getUser(lineUserId);
+  if (!user) {
+    user = await createUser(lineUserId, displayName, pictureUrl);
+  }
+  return user;
+}
+
+/**
+ * 取得用戶名片數量
+ */
+export async function getUserCardCount(lineUserId: string): Promise<number> {
+  const store = getCardStore();
+  
+  if ('getUserCardCount' in store && typeof (store as any).getUserCardCount === 'function') {
+    return await (store as any).getUserCardCount(lineUserId);
+  }
+
+  // JSON Store fallback
+  return 0;
 }
 
 /**
@@ -191,26 +220,15 @@ export async function upgradeUserPlan(
 ): Promise<User> {
   const store = getCardStore();
   
-  const subscriptionExpiredAt = new Date();
-  subscriptionExpiredAt.setMonth(subscriptionExpiredAt.getMonth() + durationMonths);
-
-  const updates = {
-    plan,
-    subscriptionStartDate: new Date(),
-    subscriptionExpiredAt,
-    maxCards: plan === 'pro' ? 10 : plan === 'enterprise' ? 999 : 1,
-    allowedTemplates: plan === 'pro' || plan === 'enterprise' 
-      ? ['default', 'chatbot-tw-1', 'corporate-buzz'] // 之後新增更多樣板
-      : ['default', 'chatbot-tw-1', 'corporate-buzz'],
-    updatedAt: new Date()
-  };
-
   // 如果使用 PostgreSQL，更新資料庫
-  if (store.constructor.name === 'PostgresCardStore') {
-    // TODO: 實現 PostgreSQL 用戶更新
+  if ('updateUserPlan' in store && typeof (store as any).updateUserPlan === 'function') {
+    const user = await (store as any).updateUserPlan(lineUserId, plan, durationMonths);
+    if (user) return user;
+    throw new Error('User not found');
   }
 
-  throw new Error('User upgrade not implemented yet');
+  // JSON Store fallback - 不支援升級
+  throw new Error('User upgrade requires database storage');
 }
 
 /**

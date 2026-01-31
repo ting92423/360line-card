@@ -83,6 +83,13 @@ export async function setLineSessionCookie(session: LineSession) {
 
 export async function clearLineSessionCookie() {
   const jar = await cookies();
-  jar.set(COOKIE_NAME, "", { path: "/", maxAge: 0 });
+  const isProd = process.env.NODE_ENV === "production";
+  jar.set(COOKIE_NAME, "", { 
+    path: "/", 
+    maxAge: 0,
+    httpOnly: true,
+    sameSite: "lax",
+    secure: isProd
+  });
 }
 
